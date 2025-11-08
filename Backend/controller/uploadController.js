@@ -1,33 +1,46 @@
-// controllers/UploadController.js
-const path = require("path");
+const User = require("../models/User");
 
-// ✅ Upload Profile Image Controller
-const uploadProfileImage = (req, res) => {
+// ✅ Update User Profile Picture
+const updateProfilePic = async (req, res) => {
   try {
-    // 1️⃣ Check if file received
+    // 1️⃣ Check if a file is uploaded
     if (!req.file) {
       return res.status(400).json({
         success: false,
-        message: "❌ No file uploaded. Please choose an image.",
+        message: "❌ No image uploaded. Please select a file.",
       });
     }
 
-    // 2️⃣ Create full image URL
+    // 2️⃣ Create full URL for uploaded image
     const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`;
 
-    // 3️⃣ Send response
+    // 3️⃣ Find user by ID (decoded from token in middleware)
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "❌ User not found.",
+      });
+    }
+
+    // 4️⃣ Update user's profilePic in DB
+    user.profilePic = imageUrl;
+    await user.save();
+
+    // 5️⃣ Send success response
     return res.status(200).json({
       success: true,
-      message: "✅ File uploaded successfully!",
-      imageUrl,
+      message: "✅ Profile picture updated successfully!",
+      profilePic: imageUrl,
     });
+
   } catch (error) {
-    console.error("❌ Upload Error:", error.message);
+    console.error("❌ Update Profile Picture Error:", error.message);
     return res.status(500).json({
       success: false,
-      message: "Internal Server Error during upload",
+      message: "⚙️ Server error while updating profile picture.",
     });
   }
 };
 
-module.exports = { uploadProfileImage };
+module.exports = { updateProfilePic };

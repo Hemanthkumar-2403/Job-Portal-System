@@ -2,12 +2,12 @@
 const express= require("express")
 const {signupUser, signinUser, forgotPassword, Logout}=require("../controller/authController");
 const { upload } = require("../middleware/uploadMiddleware");
-const { uploadProfileImage } = require("../controller/uploadController");
-
+const { verifyToken } = require("../middleware/authMiddleware");
+const{updateProfilePic}=require("../controller/uploadController")
 const router =express.Router()
 
 // ✅ Upload Image Route
-router.post("/upload-image", upload.single("image"), uploadProfileImage);
+router.post("/upload-image", verifyToken,upload.single("image"), updateProfilePic);
 
 
 router.post("/signup" , signupUser)

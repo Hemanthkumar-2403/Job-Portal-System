@@ -1,4 +1,3 @@
-// backend/models/User.js
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema(
@@ -20,6 +19,8 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
+
+    // 🎭 Role (Jobseeker or Employer)
     role: {
       type: String,
       enum: ["jobseeker", "employer"],
@@ -32,7 +33,7 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
 
-    // 🏢 Company Details (for employers)
+    // 🏢 Company Details (for Employers)
     companyName: {
       type: String,
       default: "",
@@ -45,9 +46,27 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+
+    // 🎓 Job Seeker Details
+    education: {
+      type: String,
+      default: "",
+    },
+    graduationYear: {
+      type: String,
+      default: "",
+    },
+    experience: {
+      type: String,
+      default: "",
+    },
+    skills: {
+      type: [String],
+      default: [],
+    },
   },
   { timestamps: true }
 );
 
 const User = mongoose.model("User", userSchema);
-module.exports = User
+module.exports=User;

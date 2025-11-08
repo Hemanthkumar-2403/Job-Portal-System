@@ -20,7 +20,6 @@ const verifyToken = async (req, res, next) => {
     // 3️⃣ Store decoded user info in req.user
     req.user = decoded; // e.g., { id: 'userId', role: 'employer', iat, exp }
 
-    console.log("✅ Auth Verified:", req.user);
 
     // 4️⃣ Continue to next function (protected route)
     next();
