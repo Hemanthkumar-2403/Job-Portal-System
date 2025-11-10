@@ -1,32 +1,46 @@
 const multer = require("multer");
+const path = require("path");
 
-// 1️⃣ Configure where to store files
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/"); // folder where files will go
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`); // unique filename
-  },
-});
+// 🔹 Dynamic storage generator for different upload types
+const createStorage = (folderName) =>
+  multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, `uploads/${folderName}`); // store inside uploads/<folder>
+    },
+    filename: (req, file, cb) => {
+      const uniqueName = `${Date.now()}-${file.originalname}`;
+      cb(null, uniqueName);
+    },
+  });
 
-// 2️⃣ Allow only certain file types (images + pdf)
-const fileFilter = (req, file, cb) => {
-  const allowedTypes = [
-    "image/jpeg",
-    "image/jpg",
-    "image/png",
-    "application/pdf",
-  ];
-
-  if (allowedTypes.includes(file.mimetype)) {
-    cb(null, true); // ✅ File type allowed
-  } else {
-    cb(new Error("❌ Only .jpeg, .jpg, .png, and .pdf files are allowed"), false);
-  }
+// 🔹 File filters
+const imageFilter = (req, file, cb) => {
+  const allowed = ["image/jpeg", "image/jpg", "image/png"];
+  if (allowed.includes(file.mimetype)) cb(null, true);
+  else cb(new Error("❌ Only .jpeg, .jpg, .png files are allowed"), false);
 };
 
-// 3️⃣ Create multer upload instance
-const upload = multer({ storage, fileFilter });
+const resumeFilter = (req, file, cb) => {
+  const allowed = [
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  ];
+  if (allowed.includes(file.mimetype)) cb(null, true);
+  else cb(new Error("❌ Only .pdf, .doc, .docx files are allowed"), false);
+};
 
-module.exports = {upload}
+// 🔹 Create uploaders
+const uploadProfilePic = multer({
+  storage: createStorage("profilePics"),
+  fileFilter: imageFilter,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB limit
+});
+
+const uploadResume = multer({
+  storage: createStorage("resumes"),
+  fileFilter: resumeFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+});
+
+module.exports = { uploadProfilePic, uploadResume };

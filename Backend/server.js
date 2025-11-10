@@ -7,12 +7,12 @@ const UserRoute =require("./routes/usersRoutes")
 const cookieParser= require("cookie-parser");
 const JobRoutes =require("./routes/jobRoutes");
 const seekerRoutes=require("./routes/seekerRoutes");
+const EmployerViewRoutes =require("./routes/employerViewRoutes")
 dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(cookieParser());
-
 
 
 
@@ -25,6 +25,10 @@ app.use("/api/jobs" ,JobRoutes)
 
 //jobseeker Routes
 app.use("/api/jobseeker" ,seekerRoutes)
+
+//employer 
+app.use("/api/employer" ,EmployerViewRoutes)
+
 
 
 // ✅ This line ensures uploaded files are accessible by URL
