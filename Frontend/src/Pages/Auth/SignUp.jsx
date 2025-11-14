@@ -1,66 +1,83 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, Navigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { signupUser } from "../../redux/authSlice";
+import { toast } from "react-toastify";
 import { validateSignupField } from "./Validation";
 
 function SignUp() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-  // store user input data here
+  // Redux states
+  const { loading, error, success, user } = useSelector((state) => state.auth);
+
+  // Form state
   const [signupData, setSignupData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
     role: "",
-    profilePic: null,
   });
 
-  // store any validation error messages
   const [errors, setErrors] = useState({});
 
-  // handle text & file input changes
+ 
+  // 🚫 If already logged in → redirect
+  if (user) {
+    return (
+      <Navigate
+        to={user.role === "jobseeker" ? "/find-jobs" : "/employer-dashboard"}
+        replace
+      />
+    );
+  }
+
+  // Handle input change
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
+    const { name, value } = e.target;
 
-    // if profile pic → take file, else take normal value
-    const fieldValue = name === "profilePic" ? files[0] : value;
-
-    // update state
     setSignupData((prev) => ({
       ...prev,
-      [name]: fieldValue,
+      [name]: value,
     }));
 
-    // validate field (except profilePic)
-    if (name !== "profilePic") {
-      const errorMsg = validateSignupField(
-        name,
-        fieldValue,
-        { ...signupData, [name]: fieldValue }
-      );
-      setErrors((prev) => ({ ...prev, [name]: errorMsg }));
-    }
+    const errorMsg = validateSignupField(name, value, {
+      ...signupData,
+      [name]: value,
+    });
+
+    setErrors((prev) => ({ ...prev, [name]: errorMsg }));
   };
 
-  // when user clicks sign up button
+  // Submit
   const handleSignupClick = (e) => {
     e.preventDefault();
 
     const newErrors = {};
-    for (let key in signupData) {
-      if (key !== "profilePic") {
-        const errorMsg = validateSignupField(key, signupData[key], signupData);
-        newErrors[key] = errorMsg;
-      }
-    }
+    Object.keys(signupData).forEach((key) => {
+      const msg = validateSignupField(key, signupData[key], signupData);
+      newErrors[key] = msg;
+    });
+
     setErrors(newErrors);
 
-    // if any field has an error, stop here
     if (Object.values(newErrors).some((msg) => msg !== "")) return;
 
-    alert("Signup Successful.");
-    navigate("/");
+    dispatch(signupUser(signupData));
   };
+
+  // Handle success/error
+  useEffect(() => {
+    if (success) {
+      toast.success("Signup successful! Please login.");
+      navigate("/signin");
+    }
+    if (error) {
+      toast.error(error);
+    }
+  }, [success, error, navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -72,49 +89,7 @@ function SignUp() {
           Join thousands of professionals finding their dream jobs
         </p>
 
-        {/* ==== Profile Picture Upload ==== */}
-        <div className="mb-6">
-          <label className="block font-medium text-gray-700 mb-2">
-            Profile Picture
-          </label>
-
-          {/* side by side using flex */}
-          <div className="flex items-center gap-4">
-            {/* Circle preview area */}
-            <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-300 bg-gray-100 flex items-center justify-center">
-              {signupData.profilePic ? (
-                <img
-                  src={URL.createObjectURL(signupData.profilePic)}
-                  alt="Profile"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-gray-400 text-sm">No Image</span>
-              )}
-            </div>
-
-            {/* Upload button */}
-            <div className="flex flex-col">
-              <label
-                htmlFor="profilePic"
-                className="cursor-pointer text-sm font-medium text-pink-600 hover:text-pink-700"
-              >
-                Upload Photo
-              </label>
-              <input
-                id="profilePic"
-                type="file"
-                name="profilePic"
-                accept="image/*"
-                onChange={handleChange}
-                className="hidden"
-              />
-              <p className="text-xs text-gray-500 mt-1">JPG or PNG up to 5MB</p>
-            </div>
-          </div>
-        </div>
-
-        {/* ==== Full Name ==== */}
+        {/* Full Name */}
         <div className="mb-4">
           <label className="block font-medium text-gray-700 mb-1">Full Name *</label>
           <input
@@ -123,15 +98,13 @@ function SignUp() {
             value={signupData.name}
             onChange={handleChange}
             className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${
-              errors.name
-                ? "border-red-500 focus:ring-red-400"
-                : "border-gray-300 focus:ring-pink-400"
+              errors.name ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-pink-400"
             }`}
           />
           {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
         </div>
 
-        {/* ==== Email ==== */}
+        {/* Email */}
         <div className="mb-4">
           <label className="block font-medium text-gray-700 mb-1">Email *</label>
           <input
@@ -140,15 +113,13 @@ function SignUp() {
             value={signupData.email}
             onChange={handleChange}
             className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${
-              errors.email
-                ? "border-red-500 focus:ring-red-400"
-                : "border-gray-300 focus:ring-pink-400"
+              errors.email ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-pink-400"
             }`}
           />
           {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
         </div>
 
-        {/* ==== Password ==== */}
+        {/* Password */}
         <div className="mb-4">
           <label className="block font-medium text-gray-700 mb-1">Password *</label>
           <input
@@ -157,17 +128,13 @@ function SignUp() {
             value={signupData.password}
             onChange={handleChange}
             className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${
-              errors.password
-                ? "border-red-500 focus:ring-red-400"
-                : "border-gray-300 focus:ring-pink-400"
+              errors.password ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-pink-400"
             }`}
           />
-          {errors.password && (
-            <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-          )}
+          {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
         </div>
 
-        {/* ==== Confirm Password ==== */}
+        {/* Confirm Password */}
         <div className="mb-4">
           <label className="block font-medium text-gray-700 mb-1">Confirm Password *</label>
           <input
@@ -176,17 +143,13 @@ function SignUp() {
             value={signupData.confirmPassword}
             onChange={handleChange}
             className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${
-              errors.confirmPassword
-                ? "border-red-500 focus:ring-red-400"
-                : "border-gray-300 focus:ring-pink-400"
+              errors.confirmPassword ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-pink-400"
             }`}
           />
-          {errors.confirmPassword && (
-            <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
-          )}
+          {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
         </div>
 
-        {/* ==== Role Selection ==== */}
+        {/* Role */}
         <div className="mb-4">
           <label className="block font-medium text-gray-700 mb-1">Select Role *</label>
           <select
@@ -194,9 +157,7 @@ function SignUp() {
             value={signupData.role}
             onChange={handleChange}
             className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 ${
-              errors.role
-                ? "border-red-500 focus:ring-red-400"
-                : "border-gray-300 focus:ring-pink-400"
+              errors.role ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-pink-400"
             }`}
           >
             <option value="">Choose your role</option>
@@ -206,15 +167,16 @@ function SignUp() {
           {errors.role && <p className="text-red-500 text-sm mt-1">{errors.role}</p>}
         </div>
 
-        {/* ==== Button ==== */}
+        {/* Submit */}
         <button
           onClick={handleSignupClick}
-          className="w-full bg-pink-500 hover:bg-pink-600 text-white py-2 rounded-lg font-semibold mb-4"
+          disabled={loading}
+          className="w-full bg-pink-500 hover:bg-pink-600 text-white py-2 rounded-lg font-semibold mb-4 disabled:opacity-50"
         >
-          Sign Up
+          {loading ? "Creating Account..." : "Sign Up"}
         </button>
 
-        {/* ==== Sign In link ==== */}
+        {/* Sign In link */}
         <p className="text-center text-gray-700">
           Already have an account?{" "}
           <span
@@ -228,4 +190,5 @@ function SignUp() {
     </div>
   );
 }
+
 export default SignUp;

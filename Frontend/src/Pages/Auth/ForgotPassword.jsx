@@ -1,8 +1,18 @@
-import { useState } from "react";
-import axios from "axios";
-import { validateForgotPasswordField } from "./Validation"; // import validation
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { validateForgotPasswordField } from "./Validation";
+import { forgotPasswordUser } from "../../redux/authSlice";
+import { toast } from "react-toastify";
+import { Navigate } from "react-router-dom";
 
 function ForgotPassword() {
+  const dispatch = useDispatch();
+
+  // Access global auth state
+  const { loading, success, error, user } = useSelector((state) => state.auth);
+
+
+  // Local form state
   const [formData, setFormData] = useState({
     email: "",
     newPassword: "",
@@ -10,48 +20,66 @@ function ForgotPassword() {
   });
 
   const [errors, setErrors] = useState({});
-  const [message, setMessage] = useState("");
 
-  // ----------------- Handle Change -----------------
+  
+  // 🚫 If user already logged in → redirect
+  if (user) {
+    return (
+      <Navigate
+        to={user.role === "jobseeker" ? "/find-jobs" : "/employer-dashboard"}
+        replace
+      />
+    );
+  }
+
+  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
 
-    // Real-time validation
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
     const errorMsg = validateForgotPasswordField(name, value, {
       ...formData,
       [name]: value,
     });
-    setErrors(prev => ({ ...prev, [name]: errorMsg }));
+
+    setErrors((prev) => ({ ...prev, [name]: errorMsg }));
   };
 
-  // ----------------- Handle Submit -----------------
-  const handleSubmit = async () => {
-    // Run validation for all fields
+  // Submit form
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
     const newErrors = {};
     Object.keys(formData).forEach((key) => {
-      newErrors[key] = validateForgotPasswordField(key, formData[key], formData);
+      newErrors[key] = validateForgotPasswordField(
+        key,
+        formData[key],
+        formData
+      );
     });
+
     setErrors(newErrors);
 
-    // Check if any error exists
-    if (Object.values(newErrors).some(e => e)) return;
+    if (Object.values(newErrors).some((err) => err)) return;
 
-    try {
-      const res = await axios.patch(
-        "http://localhost:4000/api/auth/forgot_password",
-        {
-          email: formData.email,
-          newPassword: formData.newPassword,
-        }
-      );
-      setMessage(res.data.message);
-      setFormData({ email: "", newPassword: "", confirmPassword: "" });
-    } catch (err) {
-      console.error(err);
-      setMessage("Error updating password. Try again.");
-    }
+    dispatch(
+      forgotPasswordUser({
+        email: formData.email,
+        newPassword: formData.newPassword,
+      })
+    );
   };
+
+  // Watch for success/error
+  useEffect(() => {
+    if (success) {
+      toast.success("Password updated successfully!");
+      setFormData({ email: "", newPassword: "", confirmPassword: "" });
+    }
+
+    if (error) toast.error(error);
+  }, [success, error]);
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
@@ -70,10 +98,14 @@ function ForgotPassword() {
               value={formData.email}
               onChange={handleChange}
               className={`w-full border rounded-md p-2 focus:ring-2 outline-none ${
-                errors.email ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-blue-400"
+                errors.email
+                  ? "border-red-500 focus:ring-red-400"
+                  : "border-gray-300 focus:ring-blue-400"
               }`}
             />
-            {errors.email && <p className="text-red-500 text-sm mt-1">{errors.email}</p>}
+            {errors.email && (
+              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+            )}
           </div>
 
           {/* New Password */}
@@ -85,44 +117,48 @@ function ForgotPassword() {
               value={formData.newPassword}
               onChange={handleChange}
               className={`w-full border rounded-md p-2 focus:ring-2 outline-none ${
-                errors.newPassword ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-blue-400"
+                errors.newPassword
+                  ? "border-red-500 focus:ring-red-400"
+                  : "border-gray-300 focus:ring-blue-400"
               }`}
             />
-            {errors.newPassword && <p className="text-red-500 text-sm mt-1">{errors.newPassword}</p>}
+            {errors.newPassword && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.newPassword}
+              </p>
+            )}
           </div>
 
           {/* Confirm Password */}
           <div>
-            <label className="block text-gray-600 mb-1">Confirm Password</label>
+            <label className="block text-gray-600 mb-1">
+              Confirm Password
+            </label>
             <input
               type="password"
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
               className={`w-full border rounded-md p-2 focus:ring-2 outline-none ${
-                errors.confirmPassword ? "border-red-500 focus:ring-red-400" : "border-gray-300 focus:ring-blue-400"
+                errors.confirmPassword
+                  ? "border-red-500 focus:ring-red-400"
+                  : "border-gray-300 focus:ring-blue-400"
               }`}
             />
-            {errors.confirmPassword && <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>}
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.confirmPassword}
+              </p>
+            )}
           </div>
 
-          {/* Message */}
-          {message && (
-            <p
-              className={`text-center text-sm ${
-                message.toLowerCase().includes("success") ? "text-green-600" : "text-red-600"
-              }`}
-            >
-              {message}
-            </p>
-          )}
-
-          {/* Submit Button */}
+          {/* Submit */}
           <button
             onClick={handleSubmit}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-md transition duration-200"
+            disabled={loading}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-md transition duration-200 disabled:opacity-60"
           >
-            Reset Password
+            {loading ? "Updating..." : "Reset Password"}
           </button>
         </div>
       </div>
