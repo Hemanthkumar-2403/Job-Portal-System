@@ -20,6 +20,8 @@ import JobPostingForm from './Pages/Employer/JobPostingForm';
 import ManageJobs from './Pages/Employer/ManageJobs';
 import ApplicationViewer from './Pages/Employer/ApplicationViewer';
 import EmployerProfilePage from './Pages/Employer/EmployerProfilePage';
+import DeleteJob from './Pages/Employer/DeleteJob';
+import EditJob from './Pages/Employer/EditJob';
 
 const App = () => {
   return (
@@ -46,6 +48,8 @@ const App = () => {
           <Route path="/employer-dashboard" element={<EmployerDashboard />} />
           <Route path="/post-job" element={<JobPostingForm />} />
           <Route path="/manage-jobs" element={<ManageJobs />} />
+          <Route path="/delete-job/:id" element={<DeleteJob />} />
+          <Route path="/edit-job/:id" element={<EditJob />} />
           <Route path="/applicants" element={<ApplicationViewer />} />
           <Route path="/company-profile" element={<EmployerProfilePage />} />
         </Route>

@@ -36,6 +36,38 @@ export const fetchEmployerJobs = createAsyncThunk(
   }
 );
 
+// DELETE JOB
+export const deleteJob = createAsyncThunk(
+  "jobs/deleteJob",
+  async (jobId, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.delete(API_PATHS.DELETE_JOB(jobId));
+      return jobId;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to delete job"
+      );
+    }
+  }
+);
+
+
+//updateJob
+export const updateJob = createAsyncThunk(
+  "jobs/updateJob",
+  async ({ id, jobData }, { rejectWithValue }) => {
+    try {
+    axiosInstance.patch(API_PATHS.EDIT_JOB(id), jobData);
+      return res.data.job;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || "Failed to update job"
+      );
+    }
+  }
+);
+
+
 /* ============================================================
    ⭐ JOB SLICE
 ============================================================ */
@@ -98,7 +130,39 @@ const jobSlice = createSlice({
       .addCase(fetchEmployerJobs.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
+
+// delete jobs
+  .addCase(deleteJob.fulfilled, (state, action) => {
+  state.loading = false;
+  state.jobs = state.jobs.filter((job) => job._id !== action.payload);
+})
+.addCase(deleteJob.pending, (state) => {
+  state.loading = true;
+  state.error = null;
+})
+.addCase(deleteJob.rejected, (state, action) => {
+  state.loading = false;
+  state.error = action.payload;
+}) 
+
+//updateJob
+.addCase(updateJob.pending, (state) => {
+  state.loading = true;
+  state.error = null;
+})
+.addCase(updateJob.fulfilled, (state, action) => {
+  state.loading = false;
+  state.jobs = state.jobs.map((job) =>
+    job._id === action.payload._id ? action.payload : job
+  );
+})
+.addCase(updateJob.rejected, (state, action) => {
+  state.loading = false;
+  state.error = action.payload;
+});
+
+    
   },
 });
 
