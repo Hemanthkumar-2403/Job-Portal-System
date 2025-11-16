@@ -5,12 +5,6 @@ import SignIn from './Pages/Auth/SignIn';
 import SignUp from './Pages/Auth/SignUp';
 import ForgotPassword from './Pages/Auth/ForgotPassword';
 import Logout from './Pages/Auth/Logout';
-
-import JobSeekerDashboard from './Pages/JobSeeker/JobSeekerDashboard';
-import JobSeekerDetails from './Pages/JobSeeker/JobSeekerDetails';
-import SavedJobs from './Pages/JobSeeker/SavedJobs';
-import JobseekerProfile from './Pages/JobSeeker/JobseekerProfile';
-
 import LandingPage from './Pages/LandingPage/LandingPage';
 
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -18,10 +12,10 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import EmployerDashboard from './Pages/Employer/EmployerDashboard';
 import JobPostingForm from './Pages/Employer/JobPostingForm';
 import ManageJobs from './Pages/Employer/ManageJobs';
-import ApplicationViewer from './Pages/Employer/ApplicationViewer';
-import EmployerProfilePage from './Pages/Employer/EmployerProfilePage';
 import DeleteJob from './Pages/Employer/DeleteJob';
 import EditJob from './Pages/Employer/EditJob';
+import FindJobs from './Pages/JobSeeker/Components/Findjobs';
+import Applicants from './Pages/Employer/Applicants';
 
 const App = () => {
   return (
@@ -37,10 +31,9 @@ const App = () => {
 
         {/* 🔒 Protected Routes for Job Seeker */}
         <Route element={<ProtectedRoute requiredRole="jobseeker" />}>
-          <Route path="/find-jobs" element={<JobSeekerDashboard />} />
-          <Route path="/job/:jobId" element={<JobSeekerDetails />} />
-          <Route path="/saved-jobs" element={<SavedJobs />} />
-          <Route path="/profile" element={<JobseekerProfile />} />
+          <Route path="/find-jobs" element={<FindJobs />} />
+
+         
         </Route>
 
         {/* 🔒 Protected Routes for Employer */}
@@ -50,8 +43,8 @@ const App = () => {
           <Route path="/manage-jobs" element={<ManageJobs />} />
           <Route path="/delete-job/:id" element={<DeleteJob />} />
           <Route path="/edit-job/:id" element={<EditJob />} />
-          <Route path="/applicants" element={<ApplicationViewer />} />
-          <Route path="/company-profile" element={<EmployerProfilePage />} />
+          <Route path="/applied-jobs" element={<Applicants />} />
+
         </Route>
 
         {/* ❌ Any wrong route → go home */}

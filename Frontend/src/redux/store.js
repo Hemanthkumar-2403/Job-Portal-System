@@ -19,5 +19,6 @@ export const store = configureStore({
     auth: authReducer, // we can add more slices later (like jobSlice)
      jobs: jobReducer,   
 
+
   },
 });

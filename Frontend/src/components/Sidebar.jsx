@@ -23,7 +23,6 @@ export default function Sidebar() {
           <Item to="/employer-dashboard">Dashboard</Item>
           <Item to="/post-job">Post Job</Item>
           <Item to="/manage-jobs">Manage Jobs</Item>
-          {/* Applicants removed now */}
           <Item to="/company-profile">Company Profile</Item>
         </nav>
       </div>

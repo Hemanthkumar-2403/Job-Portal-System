@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEmployerJobs } from "../../redux/jobSlice";
@@ -13,14 +14,15 @@ export default function ManageJobs() {
   const { jobs, loading, error } = useSelector((state) => state.jobs);
   const { user } = useSelector((state) => state.auth);
 
-  // Load all jobs of logged-in employer
   useEffect(() => {
     dispatch(fetchEmployerJobs());
   }, [dispatch]);
 
   const handleEdit = (id) => navigate(`/edit-job/${id}`);
   const handleDelete = (id) => navigate(`/delete-job/${id}`);
-  const handleViewApplicants = (id) => navigate(`/applicants/${id}`);
+
+  // 🔥 Updated — open ALL applicants page
+  const handleViewApplicants = () => navigate("/applied-jobs");
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -63,7 +65,7 @@ export default function ManageJobs() {
                   </button>
 
                   <button
-                    onClick={() => handleViewApplicants(job._id)}
+                    onClick={handleViewApplicants}
                     className="px-4 py-1 bg-gray-700 text-white rounded"
                   >
                     Applicants
