@@ -1,50 +1,41 @@
-// ✅ authSlice.js — Handles all user authentication logic (Signup, Signin, Logout)
-
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../utils/axiosInstance";
 import { API_PATHS } from "../utils/apiPaths";
 
-// ================================================================
-// 🔹 STEP 1: Initial State (default data before login)
-// ================================================================
 const initialState = {
-  user: null,         // stores logged-in user details
-  loading: false,     // true when API is in progress
-  error: null,        // stores any API error message
-  success: false,     // used to track if signup/signin worked
+  user: null,
+  loading: false,
+  error: null,
+  success: false,
 };
 
-// ================================================================
-// 🔹 STEP 2: Async Thunks (handle API calls)
-// ================================================================
-
-// 🟢 Signup User
+// SIGNUP
 export const signupUser = createAsyncThunk(
   "auth/signupUser",
   async (formData, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.post(API_PATHS.REGISTER, formData);
-      return res.data; // backend returns message or user
+      return res.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Signup failed");
     }
   }
 );
 
-// 🟢 Signin User
+// SIGNIN
 export const signinUser = createAsyncThunk(
   "auth/signinUser",
   async (formData, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.post(API_PATHS.LOGIN, formData);
-      return res.data; // backend returns { user }
+      return res.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || "Signin failed");
     }
   }
 );
 
-// 🟢 Forgot Password
+// FORGOT PASSWORD
 export const forgotPasswordUser = createAsyncThunk(
   "auth/forgotPasswordUser",
   async (formData, { rejectWithValue }) => {
@@ -57,7 +48,7 @@ export const forgotPasswordUser = createAsyncThunk(
   }
 );
 
-// 🟢 Logout User
+// LOGOUT
 export const logoutUser = createAsyncThunk(
   "auth/logoutUser",
   async (_, { rejectWithValue }) => {
@@ -70,17 +61,23 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
-// ================================================================
-// 🔹 STEP 3: Slice (Reducers + extraReducers)
-// ================================================================
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+
+  // ⭐⭐ NEW REDUCER ADDED ⭐⭐
+  reducers: {
+    updateUserInfo: (state, action) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+      }
+    },
+  },
 
   extraReducers: (builder) => {
-    // 🟠 SIGNUP
     builder
+
+      // SIGNUP
       .addCase(signupUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -89,16 +86,13 @@ const authSlice = createSlice({
       .addCase(signupUser.fulfilled, (state) => {
         state.loading = false;
         state.success = true;
-        state.error = null;
       })
       .addCase(signupUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        state.success = false;
-      });
+      })
 
-    // 🟠 SIGNIN
-    builder
+      // SIGNIN
       .addCase(signinUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -106,15 +100,13 @@ const authSlice = createSlice({
       .addCase(signinUser.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload.user;
-        state.error = null;
       })
       .addCase(signinUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
 
-    // 🟠 FORGOT PASSWORD
-    builder
+      // FORGOT PASSWORD
       .addCase(forgotPasswordUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -123,16 +115,14 @@ const authSlice = createSlice({
       .addCase(forgotPasswordUser.fulfilled, (state) => {
         state.loading = false;
         state.success = true;
-        state.error = null;
       })
       .addCase(forgotPasswordUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
         state.success = false;
-      });
+      })
 
-    // 🟠 LOGOUT
-    builder
+      // LOGOUT
       .addCase(logoutUser.pending, (state) => {
         state.loading = true;
       })
@@ -147,7 +137,7 @@ const authSlice = createSlice({
   },
 });
 
-// ================================================================
-// 🔹 STEP 4: Export reducer
-// ================================================================
+// ⭐ EXPORT NEW ACTION ⭐
+export const { updateUserInfo } = authSlice.actions;
+
 export default authSlice.reducer;

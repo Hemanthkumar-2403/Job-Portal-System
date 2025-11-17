@@ -17,6 +17,10 @@ import EditJob from './Pages/Employer/EditJob';
 import FindJobs from './Pages/JobSeeker/Components/Findjobs';
 import Applicants from './Pages/Employer/Applicants';
 
+// ✅ NEW IMPORTS
+import EmployerProfile from './Pages/Employer/Employerprofile';
+import JobseekerProfile from './Pages/JobSeeker/Components/JobSeekerprofile';
+
 const App = () => {
   return (
     <Router>
@@ -29,14 +33,15 @@ const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/logout" element={<Logout />} />
 
-        {/* 🔒 Protected Routes for Job Seeker */}
+        {/* 🔒 Protected Job Seeker Routes */}
         <Route element={<ProtectedRoute requiredRole="jobseeker" />}>
           <Route path="/find-jobs" element={<FindJobs />} />
 
-         
+          {/* 🆕 Jobseeker Profile */}
+          <Route path="/jobseeker/profile" element={<JobseekerProfile />} />
         </Route>
 
-        {/* 🔒 Protected Routes for Employer */}
+        {/* 🔒 Protected Employer Routes */}
         <Route element={<ProtectedRoute requiredRole="employer" />}>
           <Route path="/employer-dashboard" element={<EmployerDashboard />} />
           <Route path="/post-job" element={<JobPostingForm />} />
@@ -45,9 +50,11 @@ const App = () => {
           <Route path="/edit-job/:id" element={<EditJob />} />
           <Route path="/applied-jobs" element={<Applicants />} />
 
+          {/* 🆕 Employer Profile */}
+          <Route path="/employer/profile" element={<EmployerProfile />} />
         </Route>
 
-        {/* ❌ Any wrong route → go home */}
+        {/* ❌ Wrong route → redirect to home */}
         <Route path="*" element={<Navigate to="/" replace />} />
 
       </Routes>

@@ -19,16 +19,27 @@ function Signin() {
   useEffect(() => {
     if (error) toast.error(error);
   }, [error]);
-
-  // 🚫 Redirect only here (SAFE PLACE)
-  if (user) {
-    return (
-      <Navigate
-        to={user.role === "jobseeker" ? "/find-jobs" : "/employer-dashboard"}
-        replace
-      />
-    );
+if (user) {
+  // ⭐ Role-based + Profile Completion Logic
+  if (user.role === "employer") {
+    // If employer profile NOT completed → go fill employer form
+    if (!user.employer?.companyName || !user.employer?.companyDescription) {
+      return <Navigate to="/employer/profile" replace />;
+    }
+    // If completed → go to dashboard
+    return <Navigate to="/employer-dashboard" replace />;
   }
+
+  if (user.role === "jobseeker") {
+    // If jobseeker profile NOT completed → go fill jobseeker form
+    if (!user.jobseeker?.education || !user.jobseeker?.skills?.length) {
+      return <Navigate to="/jobseeker/profile" replace />;
+    }
+    // If completed → go to job section
+    return <Navigate to="/find-jobs" replace />;
+  }
+}
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
