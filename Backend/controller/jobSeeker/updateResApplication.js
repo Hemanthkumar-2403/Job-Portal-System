@@ -30,6 +30,14 @@ const updateApplication = async (req, res) => {
       });
     }
 
+    // 4️⃣ Update resume only if allowed
+if (application.status !== "Applied") {
+  return res.status(400).json({
+    success: false,
+    message: "Resume cannot be updated once the application is reviewed.",
+  });
+}
+
     // 4️⃣ Update resume path in DB
     const updatedApplication = await Application.findByIdAndUpdate(
       applicationId,

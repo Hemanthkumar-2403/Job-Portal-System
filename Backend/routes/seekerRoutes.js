@@ -10,7 +10,7 @@ const updateApplication = require("../controller/jobSeeker/updateResApplication"
 const router = express.Router();
 
 //apply for job
-router.post("/apply/:id" ,verifyToken ,applyingJob);
+router.post("/apply/:id" ,verifyToken,applyingJob);
 
 //view for all applied jobs
 router.get("/applied" ,verifyToken,viewAppliedJobs)

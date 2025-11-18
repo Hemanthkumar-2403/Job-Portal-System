@@ -64,20 +64,12 @@ const signupUser = async (req, res) => {
 };
 
 
-
-
-
-
 //  SIGNIN CONTROLLER
-
 const signinUser = async (req, res) => {
-  console.log("✅ signinUser function triggered");
-
   try {
-    // 1️⃣ Get email and password from request body
     const { email, password } = req.body;
 
-    // 2️⃣ Validate required fields
+    // 1️⃣ Validate required fields
     if (!email || !password) {
       return res.status(400).json({
         success: false,
@@ -85,7 +77,7 @@ const signinUser = async (req, res) => {
       });
     }
 
-    // 3️⃣ Check if user exists in DB
+    // 2️⃣ Find user
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({
@@ -94,7 +86,7 @@ const signinUser = async (req, res) => {
       });
     }
 
-    // 4️⃣ Compare entered password with hashed password in DB
+    // 3️⃣ Validate password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({
@@ -103,24 +95,40 @@ const signinUser = async (req, res) => {
       });
     }
 
-    // 5️⃣ Generate JWT Token
+    // 4️⃣ Create JWT
     const token = jwt.sign(
-      { id: user._id, role: user.role },   // Payload (encoded info)
-      process.env.JWT_SECRET,              // Secret key from .env
-      { expiresIn: "7d" }                  // Token validity (7 days)
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
     );
 
-    // 6️⃣ Store token in secure HTTP-only cookie
+    // 5️⃣ Set HTTP-only cookie
     res.cookie("token", token, {
-      httpOnly: true,   // Prevents access by JavaScript
-      secure: false,     // Ensures cookie sent only via HTTPS
-      
+      httpOnly: true,
+      secure: false,
     });
 
-    // 7️⃣ Send simple success response (no sensitive user info)
+    // 6️⃣ Fetch FULL user details (important)
+    const freshUser = await User.findById(user._id).lean();
+
+    // 7️⃣ SEND FULL USER DATA INCLUDING profileCompleted
     return res.status(200).json({
-      success: true,  // no HTTPS in localhost
+      success: true,
       message: "Login successful!",
+      user: {
+        _id: freshUser._id,
+        name: freshUser.name,
+        email: freshUser.email,
+        role: freshUser.role,
+        profilePic: freshUser.profilePic || null,
+
+        // ⭐ SUPER IMPORTANT: Now signin returns this
+        profileCompleted: freshUser.profileCompleted,
+
+        // ⭐ Employer data returned so redux has full info
+        employer: freshUser.employer,
+        jobseeker: freshUser.jobseeker,
+      },
     });
 
   } catch (error) {

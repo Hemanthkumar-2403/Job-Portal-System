@@ -1,5 +1,4 @@
-
-const User = require("../../models/User")
+const User = require("../../models/User");
 
 const updateJobseekerInfo = async (req, res) => {
   try {
@@ -12,18 +11,25 @@ const updateJobseekerInfo = async (req, res) => {
     const updatedUser = await User.findByIdAndUpdate(
       req.user.id,
       {
-        education,
-        graduationYear,
-        experience,
-        skills: Array.isArray(skills) ? skills : skills.split(","),
+        jobseeker: {
+          education,
+          graduationYear,
+          experience,
+          skills: Array.isArray(skills)
+            ? skills
+            : skills.split(",").map((s) => s.trim()),
+        }
       },
       { new: true }
     );
 
-    res.json({ message: "Job seeker info updated successfully", user: updatedUser });
+    res.json({
+      message: "Job seeker info updated successfully",
+      user: updatedUser
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
-module.exports=updateJobseekerInfo;
+module.exports = updateJobseekerInfo;

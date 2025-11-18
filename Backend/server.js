@@ -8,16 +8,27 @@ const cookieParser= require("cookie-parser");
 const JobRoutes =require("./routes/jobRoutes");
 const seekerRoutes=require("./routes/seekerRoutes");
 const EmployerViewRoutes =require("./routes/employerViewRoutes")
+const publicJobRoutes = require("./routes/publicJobRoutes");
+
 dotenv.config();
 const app = express();
 app.use(express.json());
-app.use(cors());
+
+
+// ✅ FIXED CORS for cookies
+app.use(cors({
+  origin: "http://localhost:5173",  // frontend
+  credentials: true,                // allow cookies
+}));
+
+// ✅ Cookie parser (after CORS)
 app.use(cookieParser());
 
 
 
 //Auth Routes
 app.use("/api/auth" ,AuthRoutes)
+
 //User Routes
 app.use("/api/users" ,UserRoute)
 //jobs Routes
@@ -29,6 +40,8 @@ app.use("/api/jobseeker" ,seekerRoutes)
 //employer 
 app.use("/api/employer" ,EmployerViewRoutes)
 
+//jobseeker publicroutes
+app.use("/api/public-jobs", publicJobRoutes);
 
 
 // ✅ This line ensures uploaded files are accessible by URL

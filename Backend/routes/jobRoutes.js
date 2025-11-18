@@ -4,12 +4,24 @@ const postJob = require("../controller/EmployerController/createjob");
 const getJobs = require("../controller/EmployerController/getjob");
 const deleteJob = require("../controller/EmployerController/deletejob");
 const editJob = require("../controller/EmployerController/updatejob");
+const getSingleJob = require("../controller/EmployerController/getSingleJob");
+
 const router = express.Router();
 
-router.post("/" ,verifyToken,postJob)
-router.get("/",getJobs)
-router.delete("/:id" , verifyToken,deleteJob)
-router.patch("/:id",verifyToken,editJob)
+// Create Job
+router.post("/create", verifyToken, postJob);
+
+// Get employer jobs
+router.get("/", verifyToken, getJobs);
+
+// Get single job by ID
+router.get("/:id", verifyToken, getSingleJob);
 
 
-module.exports=router
+// Delete Job
+router.delete("/:id", verifyToken, deleteJob);
+
+// Update Job
+router.patch("/:id", verifyToken, editJob);
+
+module.exports = router;
