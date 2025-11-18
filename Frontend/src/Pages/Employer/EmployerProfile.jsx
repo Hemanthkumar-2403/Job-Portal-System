@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { uploadEmployerFileApi, updateEmployerInfoApi } from "..//../redux/EmployerSlice";
+import { uploadEmployerFileApi, updateEmployerInfoApi } from "../../redux/EmployerSlice";
+import { updateUserInfo } from "../../redux/authSlice";   // ⭐ ADDED THIS
 import { validateEmployerField } from "../Employer/Validation";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -77,65 +78,68 @@ function EmployerProfile() {
   };
 
   // ------------------------------
-// SUBMIT FORM
-// ------------------------------
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  // VALIDATION
-  const newErrors = {};
-  Object.keys(formData).forEach((key) => {
-    newErrors[key] = validateEmployerField(key, formData[key], formData);
-  });
-
-  if (!companyLogoFile)
-    newErrors.companyLogo = "Company logo is required";
-
-  if (!profilePicFile)
-    newErrors.profilePic = "Profile picture is required";
-
-  setErrors(newErrors);
-  if (Object.values(newErrors).some((msg) => msg)) return;
-
+  // SUBMIT FORM
   // ------------------------------
-  // 1️⃣ UPLOAD COMPANY LOGO
-  // ------------------------------
-  const logoFD = new FormData();
-  logoFD.append("image", companyLogoFile);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  const logoRes = await dispatch(uploadEmployerFileApi(logoFD));
-  const logoURL = logoRes?.payload?.profilePic;
+    // VALIDATION
+    const newErrors = {};
+    Object.keys(formData).forEach((key) => {
+      newErrors[key] = validateEmployerField(key, formData[key], formData);
+    });
 
-  // ------------------------------
-  // 2️⃣ UPLOAD PROFILE PIC
-  // ------------------------------
-  const picFD = new FormData();
-  picFD.append("image", profilePicFile);
+    if (!companyLogoFile)
+      newErrors.companyLogo = "Company logo is required";
 
-  const picRes = await dispatch(uploadEmployerFileApi(picFD));
-  const picURL = picRes?.payload?.profilePic;
+    if (!profilePicFile)
+      newErrors.profilePic = "Profile picture is required";
 
-  // ------------------------------
-  // 3️⃣ UPDATE EMPLOYER INFO (API CALL)
-  // ------------------------------
-  const finalPayload = {
-    ...formData,
-    companyLogo: logoURL,
-    profilePic: picURL,
-  };
+    setErrors(newErrors);
+    if (Object.values(newErrors).some((msg) => msg)) return;
 
-  const response = await dispatch(updateEmployerInfoApi(finalPayload));
+    // ------------------------------
+    // 1️⃣ UPLOAD COMPANY LOGO
+    // ------------------------------
+    const logoFD = new FormData();
+    logoFD.append("image", companyLogoFile);
 
-  // ------------------------------
-  // 4️⃣ UPDATE AUTH USER IN REDUX
-  // ------------------------------
-  if (response.meta.requestStatus === "fulfilled") {
-    dispatch(updateUserInfo(response.payload)); // ⭐ SUPER IMPORTANT
-    toast.success("Employer Profile Completed!");
-    navigate("/employer-dashboard");
-  }
+    const logoRes = await dispatch(uploadEmployerFileApi(logoFD));
+    const logoURL = logoRes?.payload?.profilePic;
+
+    // ------------------------------
+    // 2️⃣ UPLOAD PROFILE PIC
+    // ------------------------------
+    const picFD = new FormData();
+    picFD.append("image", profilePicFile);
+
+    const picRes = await dispatch(uploadEmployerFileApi(picFD));
+    const picURL = picRes?.payload?.profilePic;
+
+    // ------------------------------
+    // 3️⃣ UPDATE EMPLOYER INFO (API CALL)
+    // ------------------------------
+
+    const finalPayload = {
+  ...formData,
+  companyLogo: logoURL,
+  profilePic: picURL,
+  profileCompleted: true,   // ⭐ VERY IMPORTANT
 };
 
+    const response = await dispatch(updateEmployerInfoApi(finalPayload)); 
+    // ⭐ CORRECT API CALL
+
+    // ------------------------------
+    // 4️⃣ UPDATE AUTH USER IN REDUX
+    // ------------------------------
+    if (response.meta.requestStatus === "fulfilled") {
+  dispatch(updateUserInfo({ user: response.payload })); 
+  toast.success("Employer Profile Completed!");
+  navigate("/employer-dashboard");
+}
+
+  };
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-50">

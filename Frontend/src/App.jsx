@@ -20,6 +20,7 @@ import Applicants from './Pages/Employer/Applicants';
 // ✅ NEW IMPORTS
 import EmployerProfile from './Pages/Employer/Employerprofile';
 import JobseekerProfile from './Pages/JobSeeker/Components/JobSeekerprofile';
+import CompanyProfile from './Pages/Employer/CompanyProfile';
 
 const App = () => {
   return (
@@ -52,6 +53,8 @@ const App = () => {
 
           {/* 🆕 Employer Profile */}
           <Route path="/employer/profile" element={<EmployerProfile />} />
+          <Route path="company-profile" element={<CompanyProfile />} />  {/* ⭐ ADD THIS */}
+
         </Route>
 
         {/* ❌ Wrong route → redirect to home */}

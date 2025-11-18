@@ -65,18 +65,18 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
 
-  // ⭐⭐ NEW REDUCER ADDED ⭐⭐
   reducers: {
+    // ⭐ CORRECTED VERSION ⭐
     updateUserInfo: (state, action) => {
-      if (state.user) {
-        state.user = { ...state.user, ...action.payload };
+      // payload is expected: { user: {...updated user...} }
+      if (action.payload?.user) {
+        state.user = action.payload.user;
       }
     },
   },
 
   extraReducers: (builder) => {
     builder
-
       // SIGNUP
       .addCase(signupUser.pending, (state) => {
         state.loading = true;
@@ -119,7 +119,6 @@ const authSlice = createSlice({
       .addCase(forgotPasswordUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-        state.success = false;
       })
 
       // LOGOUT
@@ -137,7 +136,6 @@ const authSlice = createSlice({
   },
 });
 
-// ⭐ EXPORT NEW ACTION ⭐
 export const { updateUserInfo } = authSlice.actions;
-
 export default authSlice.reducer;
+

@@ -2,7 +2,7 @@ export const API_PATHS = {
   // 🔐 AUTH ROUTES
   REGISTER: "/auth/signup",
   LOGIN: "/auth/signin",
-  FORGOT_PASSWORD: "/auth/forgot_password",
+  FORGOT_PASSWORD: "/auth/forgot-password",
   LOGOUT: "/auth/logout",
 
   // 👤 USER ROUTES
@@ -29,5 +29,5 @@ export const API_PATHS = {
   UPDATE_APPLICATION_STATUS: (id) => `/employer/application/${id}/status`,
 
   // 🖼️ FILE UPLOAD
-  UPLOAD_IMAGE: "/upload/upload-image",
+  UPLOAD_IMAGE: "/users/upload-image",
 };

@@ -19,26 +19,25 @@ function Signin() {
   useEffect(() => {
     if (error) toast.error(error);
   }, [error]);
+
+  
 if (user) {
-  // ⭐ Role-based + Profile Completion Logic
   if (user.role === "employer") {
-    // If employer profile NOT completed → go fill employer form
-    if (!user.employer?.companyName || !user.employer?.companyDescription) {
+    // ⭐ If profile not completed → send to form
+    if (!user.profileCompleted) {
       return <Navigate to="/employer/profile" replace />;
     }
-    // If completed → go to dashboard
     return <Navigate to="/employer-dashboard" replace />;
   }
 
   if (user.role === "jobseeker") {
-    // If jobseeker profile NOT completed → go fill jobseeker form
-    if (!user.jobseeker?.education || !user.jobseeker?.skills?.length) {
+    if (!user.profileCompleted) {
       return <Navigate to="/jobseeker/profile" replace />;
     }
-    // If completed → go to job section
     return <Navigate to="/find-jobs" replace />;
   }
 }
+
 
 
   const handleChange = (e) => {

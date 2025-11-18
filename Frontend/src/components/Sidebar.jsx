@@ -24,6 +24,7 @@ export default function Sidebar() {
           <Item to="/post-job">Post Job</Item>
           <Item to="/manage-jobs">Manage Jobs</Item>
           <Item to="/company-profile">Company Profile</Item>
+
         </nav>
       </div>
     </aside>

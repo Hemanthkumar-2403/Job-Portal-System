@@ -1,7 +1,9 @@
+
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { uploadJobseekerFileApi, updateJobseekerInfoApi } from "../../../redux/JobSeekerSlice";
-import { validateJobseekerField } from "../../Employer/Validation";
+import { updateUserInfo } from "../../../redux/authSlice";   // ⭐ ADDED
+import { validateJobseekerField } from "../../JobSeeker/Components/Validation";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -54,47 +56,54 @@ function JobseekerProfile() {
       setErrors((prev) => ({ ...prev, resume: "" }));
     }
   };
-// ------------------------------
-// SUBMIT FORM
-// ------------------------------
-const handleSubmit = async (e) => {
-  e.preventDefault();
 
-  // VALIDATION
-  const newErrors = {};
-  Object.keys(formData).forEach((key) => {
-    newErrors[key] = validateJobseekerField(key, formData[key], formData);
-  });
+  // ------------------------------
+  // SUBMIT FORM
+  // ------------------------------
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (!resumeFile)
-    newErrors.resume = "Resume is required";
+    // VALIDATION
+    const newErrors = {};
+    Object.keys(formData).forEach((key) => {
+      newErrors[key] = validateJobseekerField(key, formData[key], formData);
+    });
 
-  setErrors(newErrors);
-  if (Object.values(newErrors).some((msg) => msg)) return;
+    if (!resumeFile)
+      newErrors.resume = "Resume is required";
 
-  // 1️⃣ Upload resume
-  const resumeFD = new FormData();
-  resumeFD.append("image", resumeFile);
+    setErrors(newErrors);
+    if (Object.values(newErrors).some((msg) => msg)) return;
 
-  const resumeRes = await dispatch(uploadJobseekerFileApi(resumeFD));
-  const resumeURL = resumeRes?.payload?.profilePic;
+    // ------------------------------
+    // 1️⃣ Upload Resume
+    // ------------------------------
+    const resumeFD = new FormData();
+    resumeFD.append("image", resumeFile);
 
-  // 2️⃣ Update jobseeker info (API call)
-  const finalPayload = {
-    ...formData,
-    skills: formData.skills.split(",").map((s) => s.trim()),
-    resume: resumeURL,
+    const resumeRes = await dispatch(uploadJobseekerFileApi(resumeFD));
+    const resumeURL = resumeRes?.payload?.profilePic;
+
+    // ------------------------------
+    // 2️⃣ Update jobseeker info (API)
+    // ------------------------------
+    const finalPayload = {
+      ...formData,
+      skills: formData.skills.split(",").map((s) => s.trim()),
+      resume: resumeURL,
+    };
+
+    const response = await dispatch(updateJobseekerInfoApi(finalPayload));
+
+    // ------------------------------
+    // 3️⃣ Update AUTH user in GLOBAL state
+    // ------------------------------
+    if (response.meta.requestStatus === "fulfilled") {
+      dispatch(updateUserInfo(response.payload));     // ⭐ IMPORTANT
+      toast.success("Jobseeker Profile Completed!");
+      navigate("/find-jobs");
+    }
   };
-
-  const response = await dispatch(updateJobseekerInfoApi(finalPayload));
-
-  // 3️⃣ ⭐ UPDATE GLOBAL AUTH USER
-  if (response.meta.requestStatus === "fulfilled") {
-    dispatch(updateUserInfo(response.payload));   // ⭐ SUPER IMPORTANT
-    toast.success("Jobseeker Profile Completed!");
-    navigate("/find-jobs");
-  }
-};
 
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-50">
