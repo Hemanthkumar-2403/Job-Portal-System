@@ -30,4 +30,8 @@ export const API_PATHS = {
 
   // 🖼️ FILE UPLOAD
   UPLOAD_IMAGE: "/users/upload-image",
+
+  // upload resume 
+UPLOAD_RESUME: "/users/upload-resume",
+
 };

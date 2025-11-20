@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -19,12 +18,17 @@ const ProtectedRoute = ({ requiredRole }) => {
 
   // ⭐ Case 3: EMPLOYER → Check Profile Completion
   if (user.role === "employer") {
+
+    // 🔥 NEW — first check profileCompleted flag
+    if (!user.profileCompleted && location.pathname !== "/employer/profile") {
+      return <Navigate to="/employer/profile" replace />;
+    }
+
     const employerIncomplete =
       !user.employer?.companyName ||
       !user.employer?.companyDescription ||
-      !user.employer?.companyLogo; // add pic if needed
+      !user.employer?.companyLogo;
 
-    // prevent infinite loop by checking current path
     if (employerIncomplete && location.pathname !== "/employer/profile") {
       return <Navigate to="/employer/profile" replace />;
     }
@@ -32,9 +36,16 @@ const ProtectedRoute = ({ requiredRole }) => {
 
   // ⭐ Case 4: JOBSEEKER → Check Profile Completion
   if (user.role === "jobseeker") {
+
+    // 🔥 NEW — first check profileCompleted flag
+    if (!user.profileCompleted && location.pathname !== "/jobseeker/profile") {
+      return <Navigate to="/jobseeker/profile" replace />;
+    }
+
     const jobSeekerIncomplete =
       !user.jobseeker?.education ||
-      !user.jobseeker?.skills?.length;
+      !user.jobseeker?.skills?.length ||
+      !user.jobseeker?.resume;
 
     if (jobSeekerIncomplete && location.pathname !== "/jobseeker/profile") {
       return <Navigate to="/jobseeker/profile" replace />;

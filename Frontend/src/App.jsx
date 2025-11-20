@@ -53,7 +53,7 @@ const App = () => {
 
           {/* 🆕 Employer Profile */}
           <Route path="/employer/profile" element={<EmployerProfile />} />
-          <Route path="company-profile" element={<CompanyProfile />} />  {/* ⭐ ADD THIS */}
+          <Route path="/company-profile" element={<CompanyProfile />} />  {/* ⭐ ADD THIS */}
 
         </Route>
 
