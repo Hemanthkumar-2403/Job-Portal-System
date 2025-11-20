@@ -4,7 +4,6 @@ const User = require("../models/User");
 
 const updateProfilePic = async (req, res) => {
   try {
-    // debug log
     console.log(">>> uploadController called - file:", !!req.file, "body:", req.body);
 
     if (!req.file) {
@@ -14,30 +13,31 @@ const updateProfilePic = async (req, res) => {
       });
     }
 
-    // req.file.destination is an absolute path (because we used path.join)
-    // get the folder name relative to uploads
-    const dest = req.file.destination || ""; // e.g. /.../project/uploads/profilePics
-    const folderName = dest.split(path.sep).pop(); // profilePics
+    const dest = req.file.destination || "";
+    const folderName = dest.split(path.sep).pop();
 
-    // create public URL that matches your server static mount
-    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/${req.file.filename}`;
+    const fileUrl = `${req.protocol}://${req.get("host")}/uploads/${folderName}/${req.file.filename}`;
 
-    // find user
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
-    // Save profile pic to root and/or employer (depends on your design).
-    // We'll update both to be safe: root profilePic (used in many places) and employer.companyLogo if requested.
-    // But this upload route is generic: it only gets one file and no knowledge whether it's companyLogo or profilePic.
-    // We'll set root profilePic; the employerInfo patch will set companyLogo when you call it.
-    user.profilePic = imageUrl;
+    // ⭐ DETECT FILE TYPE
+    if (folderName === "profilePics") {
+      console.log(">>> Saving profile pic");
+      user.profilePic = fileUrl;
+    }
+
+    if (folderName === "resumes") {
+      console.log(">>> Saving resume file");
+      user.jobseeker.resume = fileUrl;
+    }
 
     await user.save();
 
     return res.status(200).json({
       success: true,
       message: "File uploaded successfully",
-      profilePic: imageUrl,
+      fileUrl,
     });
   } catch (err) {
     console.error("Upload Error:", err);
