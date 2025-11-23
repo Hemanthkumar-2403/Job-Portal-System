@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   uploadJobseekerProfilePicApi,
@@ -17,7 +17,11 @@ function JobseekerProfile() {
   const navigate = useNavigate();
 
   const { loading } = useSelector((state) => state.jobseeker);
+  const { user } = useSelector((state) => state.auth);
 
+  // ---------------------------
+  // INITIAL FORM STATE
+  // ---------------------------
   const [formData, setFormData] = useState({
     education: "",
     graduationYear: "",
@@ -28,8 +32,24 @@ function JobseekerProfile() {
   });
 
   const [errors, setErrors] = useState({});
-  const [resumeFile, setResumeFile] = useState(null);
   const [profilePicFile, setProfilePicFile] = useState(null);
+  const [resumeFile, setResumeFile] = useState(null);
+
+  // ---------------------------
+  // PREFILL DATA WHEN USER UPDATES
+  // ---------------------------
+  useEffect(() => {
+    if (user && user.jobseeker) {
+      setFormData({
+        education: user.jobseeker.education || "",
+        graduationYear: user.jobseeker.graduationYear || "",
+        experience: user.jobseeker.experience || "",
+        skills: user.jobseeker.skills?.join(", ") || "",
+        profilePic: user.jobseeker.profilePic || "",
+        resume: user.jobseeker.resume || "",
+      });
+    }
+  }, [user]);
 
   // ---------------------------
   // TEXT CHANGE
@@ -39,7 +59,10 @@ function JobseekerProfile() {
 
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    const msg = validateJobseekerField(name, value, { ...formData, [name]: value });
+    const msg = validateJobseekerField(name, value, {
+      ...formData,
+      [name]: value,
+    });
     setErrors((prev) => ({ ...prev, [name]: msg }));
   };
 
@@ -49,7 +72,6 @@ function JobseekerProfile() {
   const handleProfilePicChange = (e) => {
     const file = e.target.files[0];
     setProfilePicFile(file);
-
     if (file) setErrors((prev) => ({ ...prev, profilePic: "" }));
   };
 
@@ -59,7 +81,6 @@ function JobseekerProfile() {
   const handleResumeChange = (e) => {
     const file = e.target.files[0];
     setResumeFile(file);
-
     if (file) setErrors((prev) => ({ ...prev, resume: "" }));
   };
 
@@ -69,34 +90,36 @@ function JobseekerProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate
     const newErrors = {};
     Object.keys(formData).forEach((key) => {
       newErrors[key] = validateJobseekerField(key, formData[key], formData);
     });
 
-    if (!resumeFile) newErrors.resume = "Resume is required";
-    if (!profilePicFile) newErrors.profilePic = "Profile picture is required";
-
     setErrors(newErrors);
     if (Object.values(newErrors).some((msg) => msg)) return;
 
     try {
-      // 1️⃣ Upload Profile Picture
-      const picFD = new FormData();
-      picFD.append("image", profilePicFile);
+      let profilePicURL = formData.profilePic;
+      let resumeURL = formData.resume;
 
-      const picRes = await dispatch(uploadJobseekerProfilePicApi(picFD));
-      const profilePicURL = picRes?.payload?.fileUrl || "";
+      // Upload new profile pic if selected
+      if (profilePicFile) {
+        const picFD = new FormData();
+        picFD.append("image", profilePicFile);
 
-      // 2️⃣ Upload Resume
-      const resumeFD = new FormData();
-      resumeFD.append("resume", resumeFile);
+        const picRes = await dispatch(uploadJobseekerProfilePicApi(picFD));
+        profilePicURL = picRes?.payload?.fileUrl || profilePicURL;
+      }
 
-      const resumeRes = await dispatch(uploadJobseekerResumeApi(resumeFD));
-      const resumeURL = resumeRes?.payload?.fileUrl || "";
+      // Upload new resume if selected
+      if (resumeFile) {
+        const resumeFD = new FormData();
+        resumeFD.append("resume", resumeFile);
 
-      // 3️⃣ Final Data
+        const resumeRes = await dispatch(uploadJobseekerResumeApi(resumeFD));
+        resumeURL = resumeRes?.payload?.fileUrl || resumeURL;
+      }
+
       const finalPayload = {
         education: formData.education,
         graduationYear: formData.graduationYear,
@@ -110,49 +133,55 @@ function JobseekerProfile() {
       const response = await dispatch(updateJobseekerInfoApi(finalPayload));
 
       dispatch(updateUserInfo({ user: response.payload }));
-      toast.success("Jobseeker Profile Completed!");
-      navigate("/find-jobs");
+      toast.success("Profile updated successfully!");
+      navigate("/jobseeker/dashboard");
+
     } catch (err) {
       toast.error("Something went wrong!");
     }
   };
 
+  // ---------------------------
+  // JSX UI PART
+  // ---------------------------
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-50">
       <div className="bg-white p-8 rounded-xl shadow-lg max-w-lg w-full">
-        <h2 className="text-xl font-bold text-center mb-4">Complete Your Jobseeker Profile</h2>
+
+        <h2 className="text-xl font-bold text-center mb-4">
+          Complete Your Jobseeker Profile
+        </h2>
 
         <form onSubmit={handleSubmit}>
+
           {/* Profile Picture */}
-<div className="mb-4">
-  <label className="block font-medium mb-2">Profile Picture *</label>
+          <div className="mb-4 text-center">
+            <label className="block font-medium mb-2">Profile Picture *</label>
 
-  {/* Preview Circle */}
-  {profilePicFile ? (
-    <img
-      src={URL.createObjectURL(profilePicFile)}
-      alt="preview"
-      className="w-24 h-24 rounded-full object-cover mx-auto mb-2 border"
-    />
-  ) : (
-    <div className="w-24 h-24 rounded-full bg-gray-200 mx-auto mb-2 flex items-center justify-center">
-      <span className="text-gray-500 text-sm">No Image</span>
-    </div>
-  )}
+            {/* Preview Logic */}
+            {profilePicFile ? (
+              <img
+                src={URL.createObjectURL(profilePicFile)}
+                alt="preview"
+                className="w-24 h-24 rounded-full object-cover mx-auto mb-2 border"
+              />
+            ) : formData.profilePic ? (
+              <img
+                src={formData.profilePic}
+                alt="profile"
+                className="w-24 h-24 rounded-full object-cover mx-auto mb-2 border"
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-gray-200 mx-auto mb-2 flex items-center justify-center">
+                <span className="text-gray-500 text-sm">No Image</span>
+              </div>
+            )}
 
-  {/* File Input */}
-  <input
-    type="file"
-    accept="image/*"
-    onChange={handleProfilePicChange}
-    className="mt-2"
-  />
-
-  {errors.profilePic && (
-    <p className="text-red-500 text-sm">{errors.profilePic}</p>
-  )}
-</div>
-
+            <input type="file" accept="image/*" onChange={handleProfilePicChange} />
+            {errors.profilePic && (
+              <p className="text-red-500 text-sm">{errors.profilePic}</p>
+            )}
+          </div>
 
           {/* Education */}
           <div className="mb-4">
@@ -178,7 +207,7 @@ function JobseekerProfile() {
             {errors.graduationYear && <p className="text-red-500 text-sm">{errors.graduationYear}</p>}
           </div>
 
-          {/* Experience - Dropdown */}
+          {/* Experience */}
           <div className="mb-4">
             <label className="block font-medium mb-1">Experience *</label>
             <select
@@ -195,7 +224,6 @@ function JobseekerProfile() {
               <option value="5-8">5–8 Years</option>
               <option value="8+">8+ Years</option>
             </select>
-
             {errors.experience && <p className="text-red-500 text-sm">{errors.experience}</p>}
           </div>
 
@@ -206,8 +234,8 @@ function JobseekerProfile() {
               name="skills"
               value={formData.skills}
               onChange={handleChange}
-              placeholder="HTML, CSS, JavaScript"
               className="w-full border rounded-lg px-3 py-2"
+              placeholder="HTML, CSS, JavaScript"
             />
             {errors.skills && <p className="text-red-500 text-sm">{errors.skills}</p>}
           </div>
@@ -215,6 +243,19 @@ function JobseekerProfile() {
           {/* Resume Upload */}
           <div className="mb-4">
             <label className="block font-medium mb-1">Upload Resume *</label>
+
+            {/* View existing resume */}
+            {formData.resume && !resumeFile && (
+              <a
+                href={formData.resume}
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-600 underline text-sm"
+              >
+                View existing resume
+              </a>
+            )}
+
             <input type="file" accept=".pdf,.doc,.docx" onChange={handleResumeChange} />
             {errors.resume && <p className="text-red-500 text-sm">{errors.resume}</p>}
           </div>
@@ -226,6 +267,7 @@ function JobseekerProfile() {
           >
             {loading ? "Saving..." : "Save & Continue"}
           </button>
+
         </form>
       </div>
     </div>

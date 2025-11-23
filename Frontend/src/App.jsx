@@ -21,6 +21,9 @@ import Applicants from './Pages/Employer/Applicants';
 import EmployerProfile from './Pages/Employer/Employerprofile';
 import JobseekerProfile from './Pages/JobSeeker/Components/JobSeekerprofile';
 import CompanyProfile from './Pages/Employer/CompanyProfile';
+import JobSeekerDashboard from './Pages/JobSeeker/Components/JobseekerDashboard';
+import AppliedJobs from './Pages/JobSeeker/Components/AppliedJobs';
+import JobSeekerLayout from './Pages/JobSeeker/Components/JobSeekerLayout';
 
 const App = () => {
   return (
@@ -34,13 +37,24 @@ const App = () => {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/logout" element={<Logout />} />
 
-        {/* 🔒 Protected Job Seeker Routes */}
-        <Route element={<ProtectedRoute requiredRole="jobseeker" />}>
-          <Route path="/find-jobs" element={<FindJobs />} />
+      {/* 🔒 Protected Job Seeker Routes */}
+     <Route element={<ProtectedRoute requiredRole="jobseeker" />}>
+      <Route element={<JobSeekerLayout />}>
 
-          {/* 🆕 Jobseeker Profile */}
-          <Route path="/jobseeker/profile" element={<JobseekerProfile />} />
-        </Route>
+    {/* Dashboard */}
+    <Route path="/jobseeker/dashboard" element={<JobSeekerDashboard />} />
+
+    {/* Find Jobs */}
+    <Route path="/find-jobs" element={<FindJobs />} />
+
+    {/* Applied Jobs */}
+    <Route path="/jobseeker/applied" element={<AppliedJobs />} />
+
+    {/* Jobseeker Profile */}
+    <Route path="/jobseeker/profile" element={<JobseekerProfile />} />
+
+  </Route>
+</Route>
 
         {/* 🔒 Protected Employer Routes */}
         <Route element={<ProtectedRoute requiredRole="employer" />}>

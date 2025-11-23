@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAppliedJobs, withdrawApplication } from "../../../redux/jobSlice";
@@ -21,7 +20,6 @@ export default function AppliedJobs() {
     dispatch(fetchAppliedJobs());
   }, [dispatch, user]);
 
-  // Withdraw Application
   const handleWithdraw = async (id) => {
     const result = await dispatch(withdrawApplication(id));
 
@@ -39,9 +37,10 @@ export default function AppliedJobs() {
       {loading && <p className="text-gray-500 text-center">Loading...</p>}
       {error && <p className="text-red-500 text-center">{error}</p>}
 
-      {applied.length === 0 && (
-        <p className="text-center text-gray-600">No applications yet</p>
-      )}
+      {!loading && !error && applied.length === 0 && (
+  <p className="text-center text-gray-600">No applications yet</p>
+)}
+
 
       <div className="space-y-4">
         {applied.map((app) => (
@@ -50,9 +49,9 @@ export default function AppliedJobs() {
             className="bg-white p-4 rounded-xl shadow-sm border flex justify-between items-center"
           >
             <div>
-              <h2 className="text-xl font-semibold">{app.job.title}</h2>
+              <h2 className="text-xl font-semibold">{app.jobTitle}</h2>
               <p className="text-gray-600">
-                {app.job.company} • {app.job.location}
+                {app.company} • {app.location}
               </p>
 
               <p className="text-sm mt-1 text-blue-600">
@@ -60,7 +59,7 @@ export default function AppliedJobs() {
               </p>
 
               <p className="text-xs text-gray-400 mt-1">
-                Applied on: {new Date(app.createdAt).toLocaleDateString()}
+                Applied on: {new Date(app.appliedAt).toLocaleDateString()}
               </p>
             </div>
 
