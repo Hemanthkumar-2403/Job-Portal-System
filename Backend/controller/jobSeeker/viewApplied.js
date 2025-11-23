@@ -24,6 +24,7 @@ const viewAppliedJobs = async (req, res) => {
     // 3️⃣ Format response (clean output)
     const formatted = applications.map((app) => ({
       id: app._id,
+        jobId: app.job?._id,   // add this
       jobTitle: app.job?.title,
       company: app.job?.company,
       location: app.job?.location,
@@ -31,14 +32,14 @@ const viewAppliedJobs = async (req, res) => {
       status: app.status,
       appliedAt: app.createdAt,
     }));
+    
+// 4️⃣ Send response
+res.status(200).json({
+  success: true,
+  message: "Applied jobs fetched successfully",
+  applications: formatted,   // 🔥 FIXED NAME
+});
 
-    // 4️⃣ Send response
-    res.status(200).json({
-      success: true,
-      message: "Applied jobs fetched successfully",
-      total: formatted.length,
-      data: formatted,
-    });
   } catch (error) {
     console.error("Error fetching applied jobs:", error);
     res.status(500).json({

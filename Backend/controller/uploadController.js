@@ -22,15 +22,22 @@ const updateProfilePic = async (req, res) => {
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
 
     // ⭐ DETECT FILE TYPE
-    if (folderName === "profilePics") {
-      console.log(">>> Saving profile pic");
-      user.profilePic = fileUrl;
-    }
+   if (folderName === "profilePics") {
+  console.log(">>> Saving profile pic");
 
-    if (folderName === "resumes") {
-      console.log(">>> Saving resume file");
-      user.jobseeker.resume = fileUrl;
-    }
+  if (!user.jobseeker) user.jobseeker = {};  // ensure jobseeker exists
+
+  user.jobseeker.profilePic = fileUrl;       //  SAVE CORRECTLY
+}
+
+if (folderName === "resumes") {
+  console.log(">>> Saving resume file");
+
+  if (!user.jobseeker) user.jobseeker = {};
+
+  user.jobseeker.resume = fileUrl;           //  SAVE CORRECTLY
+}
+
 
     await user.save();
 
