@@ -31,6 +31,7 @@ app.use("/api/auth" ,AuthRoutes)
 
 //User Routes
 app.use("/api/users" ,UserRoute)
+
 //jobs Routes
 app.use("/api/jobs" ,JobRoutes)
 

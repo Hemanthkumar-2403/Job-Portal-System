@@ -2,13 +2,15 @@ const express = require("express");
 const updateEmployerInfo = require("../controller/usersController/employerInfo");
 const updateJobseekerInfo = require("../controller/usersController/jobseekerInfo");
 const { verifyToken } = require("../middleware/authMiddleware");
-const { uploadProfilePic, uploadResume } = require("../middleware/uploadMiddleware");
+const { uploadProfilePic, uploadResume, uploadCompanyLogo } = require("../middleware/uploadMiddleware");
 const { updateProfilePic } = require("../controller/uploadController");
 
 const router = express.Router();
 
 // ✅ Upload Image (profile picture)
-router.post("/upload-image", verifyToken, uploadProfilePic.single("image"), updateProfilePic);
+router.post("/upload-profile-pic", verifyToken, uploadProfilePic.single("image"), updateProfilePic);
+//company logo
+router.post("/upload-company-logo", verifyToken, uploadCompanyLogo.single("image"), updateProfilePic);
 
 // ✅ Upload Resume (pdf/doc/docx)
 router.post("/upload-resume", verifyToken, uploadResume.single("resume"), updateProfilePic);

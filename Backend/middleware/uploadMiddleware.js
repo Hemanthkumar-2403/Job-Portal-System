@@ -54,4 +54,11 @@ const uploadResume = multer({
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 });
 
-module.exports = { uploadProfilePic, uploadResume };
+const uploadCompanyLogo = multer({
+  storage: createStorage("companyLogos"),
+  fileFilter: imageFilter,
+  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+});
+
+
+module.exports = { uploadProfilePic, uploadResume ,uploadCompanyLogo };

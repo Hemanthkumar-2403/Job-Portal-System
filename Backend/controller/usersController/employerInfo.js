@@ -19,7 +19,7 @@ const updateEmployerInfo = async (req, res) => {
     user.employer.companyLogo = companyLogo;
 
     // Update profile pic
-    if (profilePic) user.profilePic = profilePic;
+    if (profilePic) user.employer.profilePic = profilePic;
 
     // Mark profile completed
     user.profileCompleted = true;
