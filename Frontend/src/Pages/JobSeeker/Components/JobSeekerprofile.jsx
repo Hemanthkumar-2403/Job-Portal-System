@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -20,7 +19,7 @@ function JobseekerProfile() {
   const { user } = useSelector((state) => state.auth);
 
   // ---------------------------
-  // INITIAL FORM STATE
+  // FORM STATE
   // ---------------------------
   const [formData, setFormData] = useState({
     education: "",
@@ -36,7 +35,7 @@ function JobseekerProfile() {
   const [resumeFile, setResumeFile] = useState(null);
 
   // ---------------------------
-  // PREFILL DATA WHEN USER UPDATES
+  // PREFILL EXISTING USER DATA
   // ---------------------------
   useEffect(() => {
     if (user && user.jobseeker) {
@@ -52,7 +51,7 @@ function JobseekerProfile() {
   }, [user]);
 
   // ---------------------------
-  // TEXT CHANGE
+  // HANDLE TEXT INPUT
   // ---------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -63,25 +62,60 @@ function JobseekerProfile() {
       ...formData,
       [name]: value,
     });
+
     setErrors((prev) => ({ ...prev, [name]: msg }));
   };
 
   // ---------------------------
-  // PROFILE PIC CHANGE
+  // VALIDATE PROFILE PIC
   // ---------------------------
   const handleProfilePicChange = (e) => {
     const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate size
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Profile picture must be less than 2 MB");
+      return;
+    }
+
+    // Validate type
+    const allowed = ["image/jpeg", "image/jpg", "image/png"];
+    if (!allowed.includes(file.type)) {
+      toast.error("Only JPG, JPEG, PNG allowed");
+      return;
+    }
+
     setProfilePicFile(file);
-    if (file) setErrors((prev) => ({ ...prev, profilePic: "" }));
+    setErrors((prev) => ({ ...prev, profilePic: "" }));
   };
 
   // ---------------------------
-  // RESUME CHANGE
+  // VALIDATE RESUME
   // ---------------------------
   const handleResumeChange = (e) => {
     const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate size
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Resume must be less than 5 MB");
+      return;
+    }
+
+    // Validate type
+    const allowed = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+    if (!allowed.includes(file.type)) {
+      toast.error("Only PDF, DOC, DOCX files allowed");
+      return;
+    }
+
     setResumeFile(file);
-    if (file) setErrors((prev) => ({ ...prev, resume: "" }));
+    setErrors((prev) => ({ ...prev, resume: "" }));
   };
 
   // ---------------------------
@@ -90,37 +124,39 @@ function JobseekerProfile() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate all fields
     const newErrors = {};
     Object.keys(formData).forEach((key) => {
       newErrors[key] = validateJobseekerField(key, formData[key], formData);
     });
-
     setErrors(newErrors);
+
     if (Object.values(newErrors).some((msg) => msg)) return;
 
     try {
       let profilePicURL = formData.profilePic;
       let resumeURL = formData.resume;
 
-      // Upload new profile pic if selected
+      // Upload new profile pic
       if (profilePicFile) {
-        const picFD = new FormData();
-        picFD.append("image", profilePicFile);
+        const fd = new FormData();
+        fd.append("image", profilePicFile);
 
-        const picRes = await dispatch(uploadJobseekerProfilePicApi(picFD));
-        profilePicURL = picRes?.payload?.fileUrl || profilePicURL;
+        const res = await dispatch(uploadJobseekerProfilePicApi(fd));
+        profilePicURL = res?.payload?.fileUrl || profilePicURL;
       }
 
-      // Upload new resume if selected
+      // Upload new resume
       if (resumeFile) {
-        const resumeFD = new FormData();
-        resumeFD.append("resume", resumeFile);
+        const fd = new FormData();
+        fd.append("resume", resumeFile);
 
-        const resumeRes = await dispatch(uploadJobseekerResumeApi(resumeFD));
-        resumeURL = resumeRes?.payload?.fileUrl || resumeURL;
+        const res = await dispatch(uploadJobseekerResumeApi(fd));
+        resumeURL = res?.payload?.fileUrl || resumeURL;
       }
 
-      const finalPayload = {
+      // FINAL PAYLOAD
+      const payload = {
         education: formData.education,
         graduationYear: formData.graduationYear,
         experience: formData.experience,
@@ -130,20 +166,16 @@ function JobseekerProfile() {
         profileCompleted: true,
       };
 
-      const response = await dispatch(updateJobseekerInfoApi(finalPayload));
+      const response = await dispatch(updateJobseekerInfoApi(payload));
 
       dispatch(updateUserInfo({ user: response.payload }));
-      toast.success("Profile updated successfully!");
+      toast.success("Jobseeker profile updated!");
       navigate("/jobseeker/dashboard");
-
     } catch (err) {
-      toast.error("Something went wrong!");
+      toast.error("Something went wrong");
     }
   };
 
-  // ---------------------------
-  // JSX UI PART
-  // ---------------------------
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-50">
       <div className="bg-white p-8 rounded-xl shadow-lg max-w-lg w-full">
@@ -153,28 +185,22 @@ function JobseekerProfile() {
         </h2>
 
         <form onSubmit={handleSubmit}>
-
-          {/* Profile Picture */}
+          {/* PROFILE PIC */}
           <div className="mb-4 text-center">
             <label className="block font-medium mb-2">Profile Picture *</label>
 
-            {/* Preview Logic */}
             {profilePicFile ? (
               <img
                 src={URL.createObjectURL(profilePicFile)}
-                alt="preview"
                 className="w-24 h-24 rounded-full object-cover mx-auto mb-2 border"
               />
             ) : formData.profilePic ? (
               <img
                 src={formData.profilePic}
-                alt="profile"
                 className="w-24 h-24 rounded-full object-cover mx-auto mb-2 border"
               />
             ) : (
-              <div className="w-24 h-24 rounded-full bg-gray-200 mx-auto mb-2 flex items-center justify-center">
-                <span className="text-gray-500 text-sm">No Image</span>
-              </div>
+              <div className="w-24 h-24 rounded-full bg-gray-200 mx-auto mb-2"></div>
             )}
 
             <input type="file" accept="image/*" onChange={handleProfilePicChange} />
@@ -240,18 +266,12 @@ function JobseekerProfile() {
             {errors.skills && <p className="text-red-500 text-sm">{errors.skills}</p>}
           </div>
 
-          {/* Resume Upload */}
+          {/* Resume */}
           <div className="mb-4">
-            <label className="block font-medium mb-1">Upload Resume *</label>
+            <label className="block font-medium mb-1">Resume *</label>
 
-            {/* View existing resume */}
             {formData.resume && !resumeFile && (
-              <a
-                href={formData.resume}
-                target="_blank"
-                rel="noreferrer"
-                className="text-blue-600 underline text-sm"
-              >
+              <a href={formData.resume} target="_blank" className="text-blue-600 underline text-sm">
                 View existing resume
               </a>
             )}
@@ -267,7 +287,6 @@ function JobseekerProfile() {
           >
             {loading ? "Saving..." : "Save & Continue"}
           </button>
-
         </form>
       </div>
     </div>

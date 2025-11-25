@@ -1,8 +1,18 @@
-
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { logoutUser } from "../../../redux/authSlice"; // ⭐ import logout
 
 export default function JobSeekerSidebar() {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  // LOGOUT HANDLER
+  const handleLogout = async () => {
+    await dispatch(logoutUser());
+    navigate("/signin");
+  };
+
   return (
     <div className="w-64 min-h-screen bg-white border-r shadow-sm p-5">
       <h2 className="text-2xl font-semibold mb-8 text-pink-600">Job Seeker</h2>
@@ -52,6 +62,14 @@ export default function JobSeekerSidebar() {
         >
           👤 Profile
         </NavLink>
+
+        {/* 🔥 LOGOUT BUTTON */}
+        <button
+          onClick={handleLogout}
+          className="mt-6 w-full text-left px-4 py-2 rounded-lg text-red-600 hover:bg-red-50"
+        >
+          🚪 Logout
+        </button>
 
       </nav>
     </div>

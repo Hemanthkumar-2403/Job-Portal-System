@@ -119,6 +119,7 @@ const PostJob = () => {
         />
 
         {/* Employment Type */}
+        
         <select
           name="employmentType"
           className="w-full border p-2 rounded"

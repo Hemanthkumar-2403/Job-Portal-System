@@ -1,47 +1,51 @@
-// src/redux/employerSlice.js
+
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axiosInstance from "../utils/axiosInstance";
 import { API_PATHS } from "../utils/apiPaths";
 
-// -------------------------------------
-// 1️⃣ Upload Employer Files (logo / profile pic)
-// -------------------------------------
-export const uploadEmployerFileApi = createAsyncThunk(
-  "employer/uploadFile",
+// Upload Company Logo
+export const uploadEmployerLogoApi = createAsyncThunk(
+  "employer/uploadLogo",
   async (formData, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post(API_PATHS.UPLOAD_IMAGE, formData, {
+      const res = await axiosInstance.post(API_PATHS.UPLOAD_COMPANY_LOGO, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      return res.data; // expected: { success: true, profilePic: "url" } or similar
+      return res.data; 
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "File upload failed"
-      );
+      return rejectWithValue(error.response?.data?.message || "Logo upload failed");
     }
   }
 );
 
-// -------------------------------------
-// 2️⃣ Update Employer Info
-// -------------------------------------
+// Upload Profile Pic
+export const uploadEmployerProfilePicApi = createAsyncThunk(
+  "employer/uploadProfilePic",
+  async (formData, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.post(API_PATHS.UPLOAD_PROFILE_PIC, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Profile pic upload failed");
+    }
+  }
+);
+
+// Update Employer Info
 export const updateEmployerInfoApi = createAsyncThunk(
   "employer/updateInfo",
   async (data, { rejectWithValue }) => {
     try {
       const res = await axiosInstance.patch(API_PATHS.UPDATE_EMPLOYER_INFO, data);
-      return res.data.user; // matching your backend's response shape
+      return res.data.user;
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Update failed"
-      );
+      return rejectWithValue(error.response?.data?.message || "Update failed");
     }
   }
 );
 
-// -------------------------------------
-// Slice
-// -------------------------------------
 const employerSlice = createSlice({
   name: "employer",
   initialState: {
@@ -54,20 +58,32 @@ const employerSlice = createSlice({
 
   extraReducers: (builder) => {
     builder
-      // Upload file
-      .addCase(uploadEmployerFileApi.pending, (state) => {
+
+      // Logo Upload
+      .addCase(uploadEmployerLogoApi.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
-      .addCase(uploadEmployerFileApi.fulfilled, (state) => {
+      .addCase(uploadEmployerLogoApi.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(uploadEmployerFileApi.rejected, (state, action) => {
+      .addCase(uploadEmployerLogoApi.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
 
-      // Update employer info
+      // Profile Pic Upload
+      .addCase(uploadEmployerProfilePicApi.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(uploadEmployerProfilePicApi.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(uploadEmployerProfilePicApi.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Update Employer Info
       .addCase(updateEmployerInfoApi.pending, (state) => {
         state.loading = true;
         state.error = null;

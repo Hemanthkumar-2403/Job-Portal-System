@@ -188,6 +188,8 @@ const jobSlice = createSlice({
         state.loading = false;
         if (!Array.isArray(state.jobs)) state.jobs = [];
         state.jobs.unshift(action.payload);
+        state.success = true; 
+
       })
       .addCase(createJob.rejected, (state, action) => {
         state.loading = false;

@@ -14,7 +14,9 @@ export const uploadJobseekerProfilePicApi = createAsyncThunk(
       });
       return res.data; // returns { fileUrl }
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Image upload failed");
+      return rejectWithValue(
+        error.response?.data?.message || "Image upload failed"
+      );
     }
   }
 );
@@ -26,12 +28,14 @@ export const uploadJobseekerResumeApi = createAsyncThunk(
   "jobseeker/uploadResume",
   async (formData, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.post("/users/upload-resume", formData, {
+      const res = await axiosInstance.post(API_PATHS.UPLOAD_RESUME, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       return res.data; // returns { fileUrl }
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Resume upload failed");
+      return rejectWithValue(
+        error.response?.data?.message || "Resume upload failed"
+      );
     }
   }
 );
@@ -43,10 +47,15 @@ export const updateJobseekerInfoApi = createAsyncThunk(
   "jobseeker/updateInfo",
   async (data, { rejectWithValue }) => {
     try {
-      const res = await axiosInstance.patch(API_PATHS.UPDATE_JOBSEEKER_INFO, data);
+      const res = await axiosInstance.patch(
+        API_PATHS.UPDATE_JOBSEEKER_INFO,
+        data
+      );
       return res.data.user;
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Update failed");
+      return rejectWithValue(
+        error.response?.data?.message || "Update failed"
+      );
     }
   }
 );
@@ -65,7 +74,7 @@ const jobseekerSlice = createSlice({
   extraReducers: (builder) => {
     builder
 
-      // PROFILE PIC
+      // PROFILE PIC UPLOAD
       .addCase(uploadJobseekerProfilePicApi.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -78,7 +87,7 @@ const jobseekerSlice = createSlice({
         state.error = action.payload;
       })
 
-      // RESUME
+      // RESUME UPLOAD
       .addCase(uploadJobseekerResumeApi.pending, (state) => {
         state.loading = true;
       })
