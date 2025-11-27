@@ -1,13 +1,11 @@
+
 const mongoose = require("mongoose");
 
 const jobSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
-
     company: { type: String, required: true },
-
     location: { type: String, required: true },
-
     salary: { type: String, default: "Not Mentioned" },
 
     employmentType: {
@@ -19,10 +17,8 @@ const jobSchema = new mongoose.Schema(
     description: { type: String, required: true },
 
     requirements: { type: [String], required: true },
-
     responsibilities: { type: [String], required: true },
 
-    // 🧠 Skills → validated, cleaned, unique
     skills: {
       type: [String],
       required: true,
@@ -38,8 +34,7 @@ const jobSchema = new mongoose.Schema(
         "java",
         "c++",
       ],
-      set: (skills) =>
-        [...new Set(skills.map((s) => s.trim().toLowerCase()))], // remove duplicates + normalize
+      set: skills => [...new Set(skills.map(s => s.trim().toLowerCase()))],
     },
 
     createdBy: {
@@ -47,9 +42,22 @@ const jobSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+
+    // ⭐ NEW FIELD: Store applicants
+    applicants: [
+      {
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+        },
+        appliedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );
 
-const Job = mongoose.model("Job", jobSchema);
-module.exports = Job;
+module.exports = mongoose.model("Job", jobSchema);

@@ -4,14 +4,16 @@ const getJobs = async (req, res) => {
   try {
     const employerId = req.user.id;
 
-    const jobs = await Job.find({ createdBy: employerId }).sort({ createdAt: -1 });
+    const jobs = await Job.find({ createdBy: employerId })
+      .populate("applicants.userId", "name email profilePic")
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
-      message: "Jobs fetched successfully",
+      success: true,
       jobs
     });
   } catch (error) {
-    console.error("❌ Error fetching jobs:", error);
+    console.error("Error fetching jobs:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
