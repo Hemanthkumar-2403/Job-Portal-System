@@ -43,19 +43,6 @@ const jobSchema = new mongoose.Schema(
       required: true,
     },
 
-    // ⭐ NEW FIELD: Store applicants
-    applicants: [
-      {
-        userId: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "User",
-        },
-        appliedAt: {
-          type: Date,
-          default: Date.now,
-        },
-      },
-    ],
   },
   { timestamps: true }
 );
