@@ -1,4 +1,3 @@
-
 const Application = require("../../models/Application");
 const Job = require("../../models/Job");
 
@@ -8,17 +7,32 @@ const applyingJob = async (req, res) => {
     const jobSeekerId = req.user.id;
 
     if (req.user.role !== "jobseeker") {
-      return res.status(403).json({ message: "Only jobseekers can apply" });
+      return res.status(403).json({
+        success: false,
+        message: "Only job seekers can apply for jobs",
+      });
     }
 
     const job = await Job.findById(jobId);
-    if (!job) return res.status(404).json({ message: "Job not found" });
+    if (!job) {
+      return res.status(404).json({
+        success: false,
+        message: "Job not found",
+      });
+    }
 
-    const alreadyApplied = await Application.findOne({ job: jobId, jobSeeker: jobSeekerId });
-    if (alreadyApplied)
-      return res.status(400).json({ message: "Already applied to this job" });
+    const alreadyApplied = await Application.findOne({
+      job: jobId,
+      jobSeeker: jobSeekerId,
+    });
 
-    // Create application
+    if (alreadyApplied) {
+      return res.status(400).json({
+        success: false,
+        message: "You already applied for this job",
+      });
+    }
+
     const newApplication = new Application({
       job: jobId,
       jobSeeker: jobSeekerId,
@@ -26,20 +40,31 @@ const applyingJob = async (req, res) => {
 
     await newApplication.save();
 
-    // ⭐ UPDATE JOB WITH APPLICANT
-    await Job.findByIdAndUpdate(jobId, {
-      $push: {
-        applicants: { userId: jobSeekerId, appliedAt: Date.now() }
-      }
-    });
+    const populated = await Application.findById(newApplication._id)
+      .populate({
+        path: "job",
+        select: "title company location createdBy",
+      })
+      .populate("jobSeeker", "name email");
 
     res.status(201).json({
       success: true,
-      message: "Application submitted",
+      message: "Application submitted successfully",
+      data: {
+        id: populated._id,
+        jobTitle: populated.job.title,
+        company: populated.job.company,
+        location: populated.job.location,
+        jobSeekerName: populated.jobSeeker.name,
+        appliedAt: populated.createdAt,
+      },
     });
-  } catch (err) {
-    console.error("Apply error:", err);
-    res.status(500).json({ message: "Server error" });
+  } catch (error) {
+    console.error("Error applying for job:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error, please try again later",
+    });
   }
 };
 

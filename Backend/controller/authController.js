@@ -178,4 +178,59 @@ const Logout = async (req, res) => {
   }
 };
 
-module.exports = {signupUser , signinUser,forgotPassword ,Logout}; 
+
+
+// =========================
+// ⭐ Get Logged-in User (Auto Login)
+// =========================
+const getCurrentUser = async (req, res) => {
+  try {
+    // req.user.id comes from authMiddleware (decoded from JWT cookie)
+    const user = await User.findById(req.user.id).lean();
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // return full clean user object
+    return res.status(200).json({
+      success: true,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        profilePic: user.profilePic,
+
+        // important flags
+        profileCompleted: user.profileCompleted,
+
+        // employer/user objects
+        employer: user.employer,
+        jobseeker: user.jobseeker,
+      }
+    });
+
+  } catch (error) {
+    console.error("🔥 GetCurrentUser Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+      error,
+    });
+  }
+};
+
+module.exports = {
+  signupUser,
+  signinUser,
+  forgotPassword,
+  Logout,
+  getCurrentUser, // ⭐ add here
+};
+
+
+module.exports = {signupUser , signinUser,forgotPassword ,Logout ,getCurrentUser}; 
