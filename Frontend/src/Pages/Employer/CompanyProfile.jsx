@@ -1,12 +1,60 @@
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import axiosInstance from "../../utils/axiosInstance";
+import { checkAuth } from "../../redux/authSlice";
+import { toast } from "react-toastify";
 
 function CompanyProfile() {
+  const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+
+  const [selectedLogo, setSelectedLogo] = useState(null);
+  const [previewLogo, setPreviewLogo] = useState(null);
 
   if (!user) return <p className="text-center mt-10">Loading...</p>;
 
   const employer = user.employer || {};
+
+  // When user selects a new logo
+  const handleLogoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedLogo(file);
+      setPreviewLogo(URL.createObjectURL(file)); // preview before upload
+    }
+  };
+
+  // Upload logo to backend
+  const handleUploadLogo = async () => {
+    if (!selectedLogo) {
+      toast.error("Please select a logo first");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("companyLogo", selectedLogo);
+
+    try {
+      const res = await axiosInstance.post(
+        "/users/upload-company-logo",
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
+
+      toast.success("Company logo updated!");
+
+      // Refresh user info from backend
+      dispatch(checkAuth());
+
+      // Reset
+      setSelectedLogo(null);
+      setPreviewLogo(null);
+
+    } catch (err) {
+      toast.error("Failed to upload logo");
+      console.error(err);
+    }
+  };
 
   return (
     <div className="max-w-3xl mx-auto bg-white shadow-md p-8 rounded-xl mt-8">
@@ -15,11 +63,37 @@ function CompanyProfile() {
       {/* Company Logo */}
       <div className="mb-6">
         <label className="block font-medium mb-1">Company Logo</label>
+
         <img
-          src={employer.companyLogo || "/no-logo.png"}
+          src={previewLogo || employer.companyLogo || "/no-logo.png"}
           alt="Company Logo"
           className="h-24 w-24 rounded-md border object-cover"
         />
+
+        <div className="mt-3">
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            id="logoUpload"
+            onChange={handleLogoChange}
+          />
+          <label
+            htmlFor="logoUpload"
+            className="cursor-pointer text-blue-600 underline"
+          >
+            Change Logo
+          </label>
+        </div>
+
+        {selectedLogo && (
+          <button
+            onClick={handleUploadLogo}
+            className="mt-3 px-4 py-2 bg-blue-600 text-white rounded"
+          >
+            Upload New Logo
+          </button>
+        )}
       </div>
 
       {/* Company Name */}

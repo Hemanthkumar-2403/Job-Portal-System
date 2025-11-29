@@ -1,5 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { checkAuth } from "./redux/authSlice";
 
 import SignIn from './Pages/Auth/SignIn';
 import SignUp from './Pages/Auth/SignUp';
@@ -26,6 +29,13 @@ import AppliedJobs from './Pages/JobSeeker/Components/AppliedJobs';
 import JobSeekerLayout from './Pages/JobSeeker/Components/JobSeekerLayout';
 
 const App = () => {
+   const dispatch = useDispatch();
+
+  // ⭐ Auto-login on refresh
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
+  
   return (
     <Router>
       <Routes>

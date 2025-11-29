@@ -3,8 +3,13 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const ProtectedRoute = ({ requiredRole }) => {
-  const { user } = useSelector((state) => state.auth);
+  const { user, loading } = useSelector((state) => state.auth);
   const location = useLocation();
+
+  // ⏳ WAIT: checkAuth is still loading
+  if (loading) {
+    return <div>Loading...</div>;  // temporary loader
+  }
 
   // 🚫 Case 1: User NOT logged in
   if (!user) {
@@ -18,8 +23,6 @@ const ProtectedRoute = ({ requiredRole }) => {
 
   // ⭐ Case 3: EMPLOYER → Check Profile Completion
   if (user.role === "employer") {
-
-    // 🔥 NEW — first check profileCompleted flag
     if (!user.profileCompleted && location.pathname !== "/employer/profile") {
       return <Navigate to="/employer/profile" replace />;
     }
@@ -36,8 +39,6 @@ const ProtectedRoute = ({ requiredRole }) => {
 
   // ⭐ Case 4: JOBSEEKER → Check Profile Completion
   if (user.role === "jobseeker") {
-
-    // 🔥 NEW — first check profileCompleted flag
     if (!user.profileCompleted && location.pathname !== "/jobseeker/profile") {
       return <Navigate to="/jobseeker/profile" replace />;
     }

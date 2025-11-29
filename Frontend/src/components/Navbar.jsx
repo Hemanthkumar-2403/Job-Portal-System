@@ -74,13 +74,13 @@ export default function Navbar() {
             {/* DROPDOWN MENU */}
             {open && (
               <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg border z-50">
-                <Link
-                  to="/profile"
-                  className="block px-4 py-2 hover:bg-gray-100"
-                  onClick={() => setOpen(false)}
-                >
-                  My Profile
-                </Link>
+                <Link to={user?.role === "employer" 
+                 ? "/company-profile" 
+                 : "/jobseeker/profile"
+                  }>
+                     My Profile
+                  </Link>
+
 
                 <button
                   className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"

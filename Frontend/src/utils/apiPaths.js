@@ -5,6 +5,8 @@ export const API_PATHS = {
   LOGIN: "/auth/signin",
   FORGOT_PASSWORD: "/auth/forgot-password",
   LOGOUT: "/auth/logout",
+  ME: "/auth/me",
+
 
   // USER PROFILE UPDATE
   UPDATE_EMPLOYER_INFO: "/users/update-employer-info",

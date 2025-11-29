@@ -229,6 +229,39 @@ const jobSlice = createSlice({
         state.loading = false;
         state.jobs = action.payload;
       });
+/* ⭐ FETCH EMPLOYER JOBS */
+builder
+  .addCase(fetchEmployerJobs.pending, (state) => {
+    state.loading = true;
+    state.error = null;
+  })
+  .addCase(fetchEmployerJobs.fulfilled, (state, action) => {
+    state.loading = false;
+    state.jobs = action.payload || [];
+  })
+  .addCase(fetchEmployerJobs.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+  });
+
+
+  /* ============================================================
+   ⭐ EMPLOYER APPLICATIONS
+============================================================ */
+builder
+  .addCase(fetchEmployerApplications.pending, (state) => {
+    state.loading = true;
+    state.error = null;
+  })
+  .addCase(fetchEmployerApplications.fulfilled, (state, action) => {
+    state.loading = false;
+    state.applications = action.payload || [];
+  })
+  .addCase(fetchEmployerApplications.rejected, (state, action) => {
+    state.loading = false;
+    state.error = action.payload;
+  });
+
   },
 });
 
