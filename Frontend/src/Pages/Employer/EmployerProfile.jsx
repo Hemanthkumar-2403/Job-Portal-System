@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   uploadEmployerLogoApi,
@@ -15,6 +14,8 @@ import { toast } from "react-toastify";
 function EmployerProfile() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const { user } = useSelector((state) => state.auth);
   const { loading } = useSelector((state) => state.employer);
 
   const [formData, setFormData] = useState({
@@ -30,9 +31,27 @@ function EmployerProfile() {
   const [companyLogoPreview, setCompanyLogoPreview] = useState(null);
   const [profilePicPreview, setProfilePicPreview] = useState(null);
 
+  // ⭐ PREFILL LOGIC: Preload existing data when user opens page
+  useEffect(() => {
+    if (user?.employer) {
+      setFormData({
+        companyName: user.employer.companyName || "",
+        companyDescription: user.employer.companyDescription || "",
+      });
+
+      // ⭐ EXISTING PREVIEW
+      if (user.employer.companyLogo) {
+        setCompanyLogoPreview(user.employer.companyLogo);
+      }
+
+      if (user.employer.profilePic) {
+        setProfilePicPreview(user.employer.profilePic);
+      }
+    }
+  }, [user]);
+
   const validateImage = (file) => {
     if (!file) return "File required";
-
     if (file.size > 2 * 1024 * 1024) return "File must be < 2MB";
 
     const allowed = ["image/jpeg", "image/jpg", "image/png"];
@@ -78,28 +97,33 @@ function EmployerProfile() {
       companyDescription: validateEmployerField("companyDescription", formData.companyDescription, formData),
     };
 
-    if (!companyLogoFile) newErrors.companyLogo = "Company logo required";
-    if (!profilePicFile) newErrors.profilePic = "Profile picture required";
-
     setErrors(newErrors);
     if (Object.values(newErrors).some((msg) => msg)) return;
 
     try {
-      // Upload Logo
-      const logoFD = new FormData();
-      logoFD.append("image", companyLogoFile);
-      const logoRes = await dispatch(uploadEmployerLogoApi(logoFD));
+      let logoUrl = user?.employer?.companyLogo || null;
+      let profileUrl = user?.employer?.profilePic || null;
 
-      // Upload Profile Pic
-      const picFD = new FormData();
-      picFD.append("image", profilePicFile);
-      const picRes = await dispatch(uploadEmployerProfilePicApi(picFD));
+      // Only upload new files if selected
+      if (companyLogoFile) {
+        const fd = new FormData();
+        fd.append("image", companyLogoFile);
+        const res = await dispatch(uploadEmployerLogoApi(fd));
+        logoUrl = res.payload.fileUrl;
+      }
+
+      if (profilePicFile) {
+        const fd = new FormData();
+        fd.append("image", profilePicFile);
+        const res = await dispatch(uploadEmployerProfilePicApi(fd));
+        profileUrl = res.payload.fileUrl;
+      }
 
       const payload = {
         companyName: formData.companyName,
         companyDescription: formData.companyDescription,
-        companyLogo: logoRes.payload.fileUrl,
-        profilePic: picRes.payload.fileUrl,
+        companyLogo: logoUrl,
+        profilePic: profileUrl,
         profileCompleted: true,
       };
 
@@ -107,7 +131,7 @@ function EmployerProfile() {
 
       if (response.meta.requestStatus === "fulfilled") {
         dispatch(updateUserInfo({ user: response.payload }));
-        toast.success("Employer profile completed!");
+        toast.success("Employer profile updated!");
         navigate("/employer-dashboard");
       }
     } catch {
@@ -154,7 +178,6 @@ function EmployerProfile() {
             <label className="block font-medium mb-1">Company Logo *</label>
             <input type="file" accept="image/*" onChange={handleLogoChange} />
             {companyLogoPreview && <img src={companyLogoPreview} className="h-24 mt-2 rounded-md" />}
-            {errors.companyLogo && <p className="text-red-500 text-sm">{errors.companyLogo}</p>}
           </div>
 
           {/* Profile Pic */}
@@ -162,7 +185,6 @@ function EmployerProfile() {
             <label className="block font-medium mb-1">Profile Picture *</label>
             <input type="file" accept="image/*" onChange={handleProfilePicChange} />
             {profilePicPreview && <img src={profilePicPreview} className="h-24 mt-2 rounded-full" />}
-            {errors.profilePic && <p className="text-red-500 text-sm">{errors.profilePic}</p>}
           </div>
 
           <button

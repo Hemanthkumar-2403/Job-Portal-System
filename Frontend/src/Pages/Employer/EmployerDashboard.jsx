@@ -1,8 +1,8 @@
+
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEmployerJobs } from "../../redux/jobSlice";
 import Navbar from "../../components/Navbar";
-import Sidebar from "../../components/Sidebar";
 import JobCard from "../../components/JobCard";
 import Loader from "../../components/Loader";
 
@@ -13,11 +13,10 @@ export default function EmployerDashboard() {
   const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
-  if (user?._id) {
-    dispatch(fetchEmployerJobs());
-  }
-}, [dispatch, user]);
-
+    if (user?._id) {
+      dispatch(fetchEmployerJobs());
+    }
+  }, [dispatch, user]);
 
   const handleEdit = (job) => alert("Edit " + job.title);
   const handleDelete = (job) => alert("Delete " + job.title);
@@ -27,9 +26,7 @@ export default function EmployerDashboard() {
     <div className="min-h-screen bg-gray-50">
       <Navbar userName={user?.name} />
 
-      <div className="max-w-7xl mx-auto px-4 py-6 lg:flex lg:gap-6">
-        <Sidebar />
-
+      <div className="max-w-7xl mx-auto px-4 py-6">
         <main className="flex-1">
           <h1 className="text-2xl font-semibold mb-4">Employer Dashboard</h1>
 

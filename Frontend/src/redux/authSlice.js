@@ -93,8 +93,8 @@ const authSlice = createSlice({
 
   reducers: {
     updateUserInfo: (state, action) => {
-      if (action.payload?.user) {
-        state.user = action.payload.user;
+      if (action.payload) {
+    state.user = action.payload; // save whole user object
       }
     },
   },

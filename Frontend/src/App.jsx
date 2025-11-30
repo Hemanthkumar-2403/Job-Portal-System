@@ -23,10 +23,10 @@ import Applicants from './Pages/Employer/Applicants';
 // ✅ NEW IMPORTS
 import EmployerProfile from './Pages/Employer/Employerprofile';
 import JobseekerProfile from './Pages/JobSeeker/Components/JobSeekerprofile';
-import CompanyProfile from './Pages/Employer/CompanyProfile';
 import JobSeekerDashboard from './Pages/JobSeeker/Components/JobseekerDashboard';
 import AppliedJobs from './Pages/JobSeeker/Components/AppliedJobs';
 import JobSeekerLayout from './Pages/JobSeeker/Components/JobSeekerLayout';
+import EmployerLayout from './Pages/Employer/EmployerLayout';
 
 const App = () => {
    const dispatch = useDispatch();
@@ -68,6 +68,8 @@ const App = () => {
 
         {/* 🔒 Protected Employer Routes */}
         <Route element={<ProtectedRoute requiredRole="employer" />}>
+          <Route element={<EmployerLayout />}>
+
           <Route path="/employer-dashboard" element={<EmployerDashboard />} />
           <Route path="/post-job" element={<JobPostingForm />} />
           <Route path="/manage-jobs" element={<ManageJobs />} />
@@ -77,7 +79,7 @@ const App = () => {
 
           {/* 🆕 Employer Profile */}
           <Route path="/employer/profile" element={<EmployerProfile />} />
-          <Route path="/company-profile" element={<CompanyProfile />} />  {/* ⭐ ADD THIS */}
+          </Route>
 
         </Route>
 

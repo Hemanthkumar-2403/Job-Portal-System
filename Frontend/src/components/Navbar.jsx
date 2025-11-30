@@ -1,25 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { logoutUser } from "../redux/authSlice"; // ⭐ import logout
+import { logoutUser } from "../redux/authSlice"; // your logout thunk
 
 export default function Navbar() {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const [open, setOpen] = useState(false);
+  const ddRef = useRef(null);
 
-  // User details
-  const userName = user?.name || "User";
-  const initial = userName.charAt(0).toUpperCase();
-  const profilePic = user?.profilePic;
+  // SAFELY get user display name + initial
+  const userName = user?.name || user?.fullName || "User";
+  const initial = (userName && userName.charAt(0).toUpperCase()) || "U";
+
+  // AVATAR fallback: top-level profilePic OR employer.jobseeker locations
+  const profilePic =
+  user?.employer?.profilePic ||   // ⭐ employer pic first
+  user?.jobseeker?.profilePic ||  // jobseeker
+  user?.profilePic ||             // fallback
+  user?.avatar || 
+  "";
 
   // Logout handler
   const handleLogout = async () => {
     await dispatch(logoutUser());
-    navigate("/signin"); // redirect to signin
+    setOpen(false);
+    navigate("/signin");
   };
+
+  // Profile navigation (close dropdown)
+  const handleProfile = () => {
+    setOpen(false);
+    if (user?.role === "employer") {
+      navigate("/employer/profile");
+    } else {
+      navigate("/jobseeker/profile");
+    }
+  };
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function onDocClick(e) {
+      if (ddRef.current && !ddRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
 
   return (
     <header className="w-full bg-white shadow-sm relative">
@@ -27,7 +56,11 @@ export default function Navbar() {
 
         {/* LEFT */}
         <div className="flex items-center gap-3">
-          <button className="md:hidden p-2 rounded hover:bg-gray-100" aria-label="menu">
+          <button
+            className="md:hidden p-2 rounded hover:bg-gray-100"
+            aria-label="menu"
+            onClick={() => {/* open mobile menu if you have one */}}
+          >
             ☰
           </button>
 
@@ -39,7 +72,7 @@ export default function Navbar() {
         {/* RIGHT */}
         <div className="flex items-center gap-4">
 
-          {/* Post Job Btn */}
+          {/* Post Job Btn (visible on md+) */}
           <Link
             to="/post-job"
             className="hidden md:inline-block bg-pink-600 text-white px-3 py-1.5 rounded"
@@ -48,10 +81,13 @@ export default function Navbar() {
           </Link>
 
           {/* USER DROPDOWN */}
-          <div className="relative">
+          <div className="relative" ref={ddRef}>
             <div
-              className="flex items-center gap-3 cursor-pointer"
-              onClick={() => setOpen(!open)}
+              className="flex items-center gap-3 cursor-pointer select-none"
+              onClick={() => setOpen((s) => !s)}
+              role="button"
+              aria-haspopup="true"
+              aria-expanded={open}
             >
               <div className="text-sm text-gray-700">
                 Hi, <span className="font-medium">{userName}</span>
@@ -73,14 +109,21 @@ export default function Navbar() {
 
             {/* DROPDOWN MENU */}
             {open && (
-              <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg border z-50">
-                <Link to={user?.role === "employer" 
-                 ? "/company-profile" 
-                 : "/jobseeker/profile"
-                  }>
-                     My Profile
-                  </Link>
+              <div className="absolute right-0 mt-2 w-44 bg-white shadow-lg rounded-lg border z-50">
+                <button
+                  onClick={handleProfile}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                >
+                  My Profile
+                </button>
 
+                <Link
+                  to="/"
+                  className="block px-4 py-2 hover:bg-gray-100 text-gray-700"
+                  onClick={() => setOpen(false)}
+                >
+                  Home
+                </Link>
 
                 <button
                   className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
