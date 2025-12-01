@@ -1,9 +1,7 @@
-
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEmployerJobs } from "../../redux/jobSlice";
 import Navbar from "../../components/Navbar";
-import Sidebar from "../../components/Sidebar";
 import Loader from "../../components/Loader";
 import { useNavigate } from "react-router-dom";
 
@@ -20,17 +18,13 @@ export default function ManageJobs() {
 
   const handleEdit = (id) => navigate(`/edit-job/${id}`);
   const handleDelete = (id) => navigate(`/delete-job/${id}`);
-
-  // 🔥 Updated — open ALL applicants page
   const handleViewApplicants = () => navigate("/applied-jobs");
 
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar userName={user?.name} />
 
-      <div className="max-w-7xl mx-auto px-4 py-6 lg:flex lg:gap-6">
-        <Sidebar />
-
+      <div className="max-w-7xl mx-auto px-4 py-6">
         <main className="flex-1">
           <h1 className="text-2xl font-semibold mb-4">Manage Jobs</h1>
 

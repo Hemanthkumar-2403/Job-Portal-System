@@ -9,7 +9,9 @@ const initialState = {
   success: false,
 };
 
-// SIGNUP
+/* ===============================
+   SIGNUP
+================================*/
 export const signupUser = createAsyncThunk(
   "auth/signupUser",
   async (formData, { rejectWithValue }) => {
@@ -22,7 +24,9 @@ export const signupUser = createAsyncThunk(
   }
 );
 
-// SIGNIN
+/* ===============================
+   SIGNIN
+================================*/
 export const signinUser = createAsyncThunk(
   "auth/signinUser",
   async (formData, { rejectWithValue }) => {
@@ -35,7 +39,24 @@ export const signinUser = createAsyncThunk(
   }
 );
 
-// FORGOT PASSWORD
+/* ===============================
+   CHECK SESSION (/auth/me) — AUTO LOGIN
+================================*/
+export const checkAuth = createAsyncThunk(
+  "auth/checkAuth",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axiosInstance.get(API_PATHS.ME);
+      return res.data.user;
+    } catch (error) {
+      return rejectWithValue(null); // Not logged in
+    }
+  }
+);
+
+/* ===============================
+   FORGOT PASSWORD
+================================*/
 export const forgotPasswordUser = createAsyncThunk(
   "auth/forgotPasswordUser",
   async (formData, { rejectWithValue }) => {
@@ -48,7 +69,9 @@ export const forgotPasswordUser = createAsyncThunk(
   }
 );
 
-// LOGOUT
+/* ===============================
+   LOGOUT
+================================*/
 export const logoutUser = createAsyncThunk(
   "auth/logoutUser",
   async (_, { rejectWithValue }) => {
@@ -61,23 +84,24 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
+/* ===============================
+   SLICE
+================================*/
 const authSlice = createSlice({
   name: "auth",
   initialState,
 
   reducers: {
-    // ⭐ CORRECTED VERSION ⭐
     updateUserInfo: (state, action) => {
-      // payload is expected: { user: {...updated user...} }
-      if (action.payload?.user) {
-        state.user = action.payload.user;
+      if (action.payload) {
+    state.user = action.payload; // save whole user object
       }
     },
   },
 
   extraReducers: (builder) => {
     builder
-      // SIGNUP
+      /* SIGNUP */
       .addCase(signupUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -92,7 +116,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       })
 
-      // SIGNIN
+      /* SIGNIN */
       .addCase(signinUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -106,7 +130,20 @@ const authSlice = createSlice({
         state.error = action.payload;
       })
 
-      // FORGOT PASSWORD
+      /* CHECK AUTH (AUTO LOGIN ON REFRESH) */
+      .addCase(checkAuth.pending, (state) => {
+        state.loading = false; // prevent UI blocking
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.loading = false;
+        state.user = null;
+      })
+
+      /* FORGOT PASSWORD */
       .addCase(forgotPasswordUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -121,7 +158,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       })
 
-      // LOGOUT
+      /* LOGOUT */
       .addCase(logoutUser.pending, (state) => {
         state.loading = true;
       })
@@ -138,4 +175,3 @@ const authSlice = createSlice({
 
 export const { updateUserInfo } = authSlice.actions;
 export default authSlice.reducer;
-

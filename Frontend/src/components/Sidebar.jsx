@@ -1,7 +1,8 @@
+
 import React from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { logoutUser } from "../redux/authSlice"; // ⭐ import logout
+import { logoutUser } from "../redux/authSlice";
 
 const Item = ({ to, children }) => (
   <NavLink
@@ -20,7 +21,6 @@ export default function Sidebar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Logout Handler
   const handleLogout = async () => {
     await dispatch(logoutUser());
     navigate("/signin");
@@ -35,9 +35,11 @@ export default function Sidebar() {
           <Item to="/employer-dashboard">Dashboard</Item>
           <Item to="/post-job">Post Job</Item>
           <Item to="/manage-jobs">Manage Jobs</Item>
-          <Item to="/company-profile">Company Profile</Item>
+          <Item to="/applied-jobs">Applicants</Item>
+          
+          {/* FIXED: Real profile page */}
+          <Item to="/employer/profile">Company Profile</Item>
 
-          {/* 🔥 LOGOUT BUTTON */}
           <button
             onClick={handleLogout}
             className="mt-3 block w-full text-left px-3 py-2 rounded-lg text-sm text-red-600 hover:bg-red-50"
