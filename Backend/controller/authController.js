@@ -168,13 +168,14 @@ const Logout = async (req, res) => {
   try {
     res.clearCookie("token", {
       httpOnly: true,
-      secure: false, // use true when deployed (HTTPS)
-      sameSite: "None"
+      secure: false,     // localhost --> false
+      sameSite: "lax",   // MUST be 'lax' for non-HTTPS
+      path: "/",         // VERY IMPORTANT
     });
 
-    res.status(200).json({ message: "Logout successful" });
+    return res.status(200).json({ message: "Logout successful" });
   } catch (err) {
-    res.status(500).json({ message: "Server Error", err });
+    return res.status(500).json({ message: "Server Error", err });
   }
 };
 

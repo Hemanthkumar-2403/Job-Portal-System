@@ -52,6 +52,7 @@ const viewApplicationsByEmployer = async (req, res) => {
       location: app.job?.location,
       jobSeekerName: app.jobSeeker?.name,
       jobSeekerEmail: app.jobSeeker?.email,
+        phone: app.phone,                    
       resume: app.resume,
       status: app.status,
       appliedAt: app.createdAt,

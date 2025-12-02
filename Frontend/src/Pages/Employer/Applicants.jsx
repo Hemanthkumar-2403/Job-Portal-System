@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -28,6 +29,10 @@ const Applicants = () => {
     }
   };
 
+<<<<<<< HEAD
+=======
+  // Function to return colored status badge
+>>>>>>> 905fe77e7c175320bf70b24e00c25387aa4116c7
   const getStatusBadge = (status) => {
     switch (status) {
       case "Shortlisted":
@@ -55,6 +60,7 @@ const Applicants = () => {
               <th className="p-3 font-semibold border">Job Title</th>
               <th className="p-3 font-semibold border">Applicant</th>
               <th className="p-3 font-semibold border">Email</th>
+<<<<<<< HEAD
 
               {/* ⭐ NEW PHONE COLUMN */}
               <th className="p-3 font-semibold border">Phone</th>
@@ -62,6 +68,8 @@ const Applicants = () => {
               {/* ⭐ NEW RESUME COLUMN */}
               <th className="p-3 font-semibold border">Resume</th>
 
+=======
+>>>>>>> 905fe77e7c175320bf70b24e00c25387aa4116c7
               <th className="p-3 font-semibold border">Status</th>
               <th className="p-3 font-semibold border">Update</th>
             </tr>
@@ -69,11 +77,19 @@ const Applicants = () => {
 
           <tbody>
             {applications?.map((app) => (
+<<<<<<< HEAD
               <tr key={app.applicationId} className="hover:bg-gray-50 transition">
+=======
+              <tr
+                key={app.applicationId}
+                className="hover:bg-gray-50 transition"
+              >
+>>>>>>> 905fe77e7c175320bf70b24e00c25387aa4116c7
                 <td className="p-3 border">{app.jobTitle}</td>
                 <td className="p-3 border">{app.jobSeekerName}</td>
                 <td className="p-3 border">{app.jobSeekerEmail}</td>
 
+<<<<<<< HEAD
                 {/* ⭐ PHONE DISPLAY */}
                 <td className="p-3 border">{app.phone || "NA"}</td>
 
@@ -93,6 +109,8 @@ const Applicants = () => {
                   )}
                 </td>
 
+=======
+>>>>>>> 905fe77e7c175320bf70b24e00c25387aa4116c7
                 <td className="p-3 border">
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusBadge(
@@ -105,7 +123,11 @@ const Applicants = () => {
 
                 <td className="p-3 border">
                   <select
+<<<<<<< HEAD
                     className="px-3 py-1 bg-white border rounded shadow-sm"
+=======
+                    className="px-3 py-1 bg-white border rounded shadow-sm focus:outline-none"
+>>>>>>> 905fe77e7c175320bf70b24e00c25387aa4116c7
                     onChange={(e) =>
                       handleStatusChange(app.applicationId, e.target.value)
                     }
@@ -121,7 +143,11 @@ const Applicants = () => {
 
             {applications?.length === 0 && (
               <tr>
+<<<<<<< HEAD
                 <td colSpan="7" className="text-center p-6 text-gray-600">
+=======
+                <td colSpan="5" className="text-center p-6 text-gray-600">
+>>>>>>> 905fe77e7c175320bf70b24e00c25387aa4116c7
                   No applications found.
                 </td>
               </tr>
