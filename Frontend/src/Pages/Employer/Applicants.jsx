@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -11,13 +10,13 @@ const Applicants = () => {
   const dispatch = useDispatch();
   const { applications, loading, error } = useSelector((state) => state.jobs);
 
-  // Load all applications on page load
   useEffect(() => {
     dispatch(fetchEmployerApplications());
   }, [dispatch]);
 
-  // Handle Status Change
   const handleStatusChange = async (applicationId, newStatus) => {
+    if (newStatus === "Select") return;
+
     const result = await dispatch(
       updateApplicationStatus({ applicationId, status: newStatus })
     );
@@ -29,7 +28,6 @@ const Applicants = () => {
     }
   };
 
-  // Function to return colored status badge
   const getStatusBadge = (status) => {
     switch (status) {
       case "Shortlisted":
@@ -57,6 +55,13 @@ const Applicants = () => {
               <th className="p-3 font-semibold border">Job Title</th>
               <th className="p-3 font-semibold border">Applicant</th>
               <th className="p-3 font-semibold border">Email</th>
+
+              {/* ⭐ NEW PHONE COLUMN */}
+              <th className="p-3 font-semibold border">Phone</th>
+
+              {/* ⭐ NEW RESUME COLUMN */}
+              <th className="p-3 font-semibold border">Resume</th>
+
               <th className="p-3 font-semibold border">Status</th>
               <th className="p-3 font-semibold border">Update</th>
             </tr>
@@ -64,13 +69,29 @@ const Applicants = () => {
 
           <tbody>
             {applications?.map((app) => (
-              <tr
-                key={app.applicationId}
-                className="hover:bg-gray-50 transition"
-              >
+              <tr key={app.applicationId} className="hover:bg-gray-50 transition">
                 <td className="p-3 border">{app.jobTitle}</td>
                 <td className="p-3 border">{app.jobSeekerName}</td>
                 <td className="p-3 border">{app.jobSeekerEmail}</td>
+
+                {/* ⭐ PHONE DISPLAY */}
+                <td className="p-3 border">{app.phone || "NA"}</td>
+
+                {/* ⭐ RESUME DOWNLOAD */}
+                <td className="p-3 border">
+                  {app.resume ? (
+                    <a
+                      href={app.resume}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-600 underline"
+                    >
+                      Download
+                    </a>
+                  ) : (
+                    "No Resume"
+                  )}
+                </td>
 
                 <td className="p-3 border">
                   <span
@@ -84,7 +105,7 @@ const Applicants = () => {
 
                 <td className="p-3 border">
                   <select
-                    className="px-3 py-1 bg-white border rounded shadow-sm focus:outline-none"
+                    className="px-3 py-1 bg-white border rounded shadow-sm"
                     onChange={(e) =>
                       handleStatusChange(app.applicationId, e.target.value)
                     }
@@ -100,7 +121,7 @@ const Applicants = () => {
 
             {applications?.length === 0 && (
               <tr>
-                <td colSpan="5" className="text-center p-6 text-gray-600">
+                <td colSpan="7" className="text-center p-6 text-gray-600">
                   No applications found.
                 </td>
               </tr>

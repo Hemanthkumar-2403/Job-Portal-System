@@ -1,4 +1,3 @@
-
 import React from "react";
 
 export default function JobCard({ job = {}, onEdit, onDelete, onView, onApplicants }) {

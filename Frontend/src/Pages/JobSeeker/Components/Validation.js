@@ -25,5 +25,13 @@ export const validateJobseekerField = (name, value, data) => {
   //   if (!value) error = "Resume file is required";
   // }
 
+
+  if (name === "phone") {
+  if (!value.trim()) return "Phone number is required";
+  if (!/^[0-9]{10}$/.test(value)) return "Phone must be 10 digits";
+  return "";
+}
+
+
   return error;
 };

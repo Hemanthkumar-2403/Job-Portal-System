@@ -16,9 +16,33 @@ const JobSeekerDashboard = () => {
           className="w-20 h-20 rounded-full object-cover border shadow"
         />
 
-        <h1 className="text-3xl font-bold">
-          Welcome, {user?.name || "Job Seeker"} 👋
-        </h1>
+        <div>
+          <h1 className="text-3xl font-bold">
+            Welcome, {user?.name || "Job Seeker"} 👋
+          </h1>
+
+          {/* ⭐ ADDED — PHONE NUMBER */}
+          <p className="text-gray-600 mt-1">
+            📞 <strong>{user?.jobseeker?.phone || "No phone added"}</strong>
+          </p>
+
+          {/* ⭐ ADDED — RESUME DOWNLOAD */}
+          <p className="text-gray-600 mt-1">
+            📄 Resume:{" "}
+            {user?.jobseeker?.resume ? (
+              <a
+                href={user.jobseeker.resume}
+                target="_blank"
+                rel="noreferrer"
+                className="text-blue-600 underline"
+              >
+                Download Resume
+              </a>
+            ) : (
+              "Not uploaded"
+            )}
+          </p>
+        </div>
       </div>
 
       {/* Dashboard Cards */}

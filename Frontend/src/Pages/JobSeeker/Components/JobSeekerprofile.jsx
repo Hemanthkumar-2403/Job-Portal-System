@@ -5,7 +5,6 @@ import {
   uploadJobseekerResumeApi,
   updateJobseekerInfoApi,
 } from "../../../redux/JobSeekerSlice";
-
 import { updateUserInfo } from "../../../redux/authSlice";
 import { validateJobseekerField } from "../../JobSeeker/Components/Validation";
 import { useNavigate } from "react-router-dom";
@@ -18,9 +17,6 @@ function JobseekerProfile() {
   const { loading } = useSelector((state) => state.jobseeker);
   const { user } = useSelector((state) => state.auth);
 
-  // ---------------------------
-  // FORM STATE
-  // ---------------------------
   const [formData, setFormData] = useState({
     education: "",
     graduationYear: "",
@@ -28,15 +24,13 @@ function JobseekerProfile() {
     skills: "",
     profilePic: "",
     resume: "",
+    phone: "",
   });
 
   const [errors, setErrors] = useState({});
   const [profilePicFile, setProfilePicFile] = useState(null);
   const [resumeFile, setResumeFile] = useState(null);
 
-  // ---------------------------
-  // PREFILL EXISTING USER DATA
-  // ---------------------------
   useEffect(() => {
     if (user && user.jobseeker) {
       setFormData({
@@ -46,16 +40,13 @@ function JobseekerProfile() {
         skills: user.jobseeker.skills?.join(", ") || "",
         profilePic: user.jobseeker.profilePic || "",
         resume: user.jobseeker.resume || "",
+        phone: user.jobseeker.phone || "",
       });
     }
   }, [user]);
 
-  // ---------------------------
-  // HANDLE TEXT INPUT
-  // ---------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData((prev) => ({ ...prev, [name]: value }));
 
     const msg = validateJobseekerField(name, value, {
@@ -66,20 +57,15 @@ function JobseekerProfile() {
     setErrors((prev) => ({ ...prev, [name]: msg }));
   };
 
-  // ---------------------------
-  // VALIDATE PROFILE PIC
-  // ---------------------------
   const handleProfilePicChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate size
     if (file.size > 2 * 1024 * 1024) {
       toast.error("Profile picture must be less than 2 MB");
       return;
     }
 
-    // Validate type
     const allowed = ["image/jpeg", "image/jpg", "image/png"];
     if (!allowed.includes(file.type)) {
       toast.error("Only JPG, JPEG, PNG allowed");
@@ -90,20 +76,15 @@ function JobseekerProfile() {
     setErrors((prev) => ({ ...prev, profilePic: "" }));
   };
 
-  // ---------------------------
-  // VALIDATE RESUME
-  // ---------------------------
   const handleResumeChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Validate size
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Resume must be less than 5 MB");
       return;
     }
 
-    // Validate type
     const allowed = [
       "application/pdf",
       "application/msword",
@@ -118,44 +99,34 @@ function JobseekerProfile() {
     setErrors((prev) => ({ ...prev, resume: "" }));
   };
 
-  // ---------------------------
-  // SUBMIT FORM
-  // ---------------------------
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate all fields
     const newErrors = {};
     Object.keys(formData).forEach((key) => {
       newErrors[key] = validateJobseekerField(key, formData[key], formData);
     });
     setErrors(newErrors);
-
     if (Object.values(newErrors).some((msg) => msg)) return;
 
     try {
       let profilePicURL = formData.profilePic;
       let resumeURL = formData.resume;
 
-      // Upload new profile pic
       if (profilePicFile) {
         const fd = new FormData();
         fd.append("image", profilePicFile);
-
         const res = await dispatch(uploadJobseekerProfilePicApi(fd));
         profilePicURL = res?.payload?.fileUrl || profilePicURL;
       }
 
-      // Upload new resume
       if (resumeFile) {
         const fd = new FormData();
         fd.append("resume", resumeFile);
-
         const res = await dispatch(uploadJobseekerResumeApi(fd));
         resumeURL = res?.payload?.fileUrl || resumeURL;
       }
 
-      // FINAL PAYLOAD
       const payload = {
         education: formData.education,
         graduationYear: formData.graduationYear,
@@ -163,12 +134,13 @@ function JobseekerProfile() {
         skills: formData.skills.split(",").map((s) => s.trim()),
         profilePic: profilePicURL,
         resume: resumeURL,
+        phone: formData.phone,
         profileCompleted: true,
       };
 
       const response = await dispatch(updateJobseekerInfoApi(payload));
+      dispatch(updateUserInfo( response.payload.user ));
 
-      dispatch(updateUserInfo({ user: response.payload }));
       toast.success("Jobseeker profile updated!");
       navigate("/jobseeker/dashboard");
     } catch (err) {
@@ -179,13 +151,26 @@ function JobseekerProfile() {
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-50">
       <div className="bg-white p-8 rounded-xl shadow-lg max-w-lg w-full">
-
         <h2 className="text-xl font-bold text-center mb-4">
           Complete Your Jobseeker Profile
         </h2>
 
         <form onSubmit={handleSubmit}>
-          {/* PROFILE PIC */}
+          <div className="mb-4">
+            <label className="block font-medium mb-1">Phone Number *</label>
+            <input
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              className="w-full border rounded-lg px-3 py-2"
+              placeholder="9876543210"
+              maxLength={10}
+            />
+            {errors.phone && (
+              <p className="text-red-500 text-sm">{errors.phone}</p>
+            )}
+          </div>
+
           <div className="mb-4 text-center">
             <label className="block font-medium mb-2">Profile Picture *</label>
 
@@ -209,7 +194,6 @@ function JobseekerProfile() {
             )}
           </div>
 
-          {/* Education */}
           <div className="mb-4">
             <label className="block font-medium mb-1">Education *</label>
             <input
@@ -221,7 +205,6 @@ function JobseekerProfile() {
             {errors.education && <p className="text-red-500 text-sm">{errors.education}</p>}
           </div>
 
-          {/* Graduation Year */}
           <div className="mb-4">
             <label className="block font-medium mb-1">Graduation Year *</label>
             <input
@@ -230,10 +213,11 @@ function JobseekerProfile() {
               onChange={handleChange}
               className="w-full border rounded-lg px-3 py-2"
             />
-            {errors.graduationYear && <p className="text-red-500 text-sm">{errors.graduationYear}</p>}
+            {errors.graduationYear && (
+              <p className="text-red-500 text-sm">{errors.graduationYear}</p>
+            )}
           </div>
 
-          {/* Experience */}
           <div className="mb-4">
             <label className="block font-medium mb-1">Experience *</label>
             <select
@@ -250,10 +234,11 @@ function JobseekerProfile() {
               <option value="5-8">5–8 Years</option>
               <option value="8+">8+ Years</option>
             </select>
-            {errors.experience && <p className="text-red-500 text-sm">{errors.experience}</p>}
+            {errors.experience && (
+              <p className="text-red-500 text-sm">{errors.experience}</p>
+            )}
           </div>
 
-          {/* Skills */}
           <div className="mb-4">
             <label className="block font-medium mb-1">Skills *</label>
             <input
@@ -266,7 +251,6 @@ function JobseekerProfile() {
             {errors.skills && <p className="text-red-500 text-sm">{errors.skills}</p>}
           </div>
 
-          {/* Resume */}
           <div className="mb-4">
             <label className="block font-medium mb-1">Resume *</label>
 
