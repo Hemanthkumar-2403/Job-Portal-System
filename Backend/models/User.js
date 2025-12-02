@@ -25,7 +25,9 @@ const userSchema = new mongoose.Schema(
       graduationYear: { type: String, default: "" },
       experience: { type: String, default: "" },
       skills: { type: [String], default: [] },
-      resume: { type: String, default: "" }
+      resume: { type: String, default: "" },
+        phone: { type: String, default: "" }  // ⭐ ADD THIS
+
     }
   },
   { timestamps: true }

@@ -1,5 +1,6 @@
 const Application = require("../../models/Application");
 const Job = require("../../models/Job");
+const User = require("../../models/User");
 
 const applyingJob = async (req, res) => {
   try {
@@ -33,30 +34,32 @@ const applyingJob = async (req, res) => {
       });
     }
 
+    // ⭐ Fetch job seeker data
+    const jobSeeker = await User.findById(jobSeekerId).select(
+      "name email jobseeker.resume jobseeker.phone"
+    );
+
+    // ⭐ Create application including resume + phone
     const newApplication = new Application({
       job: jobId,
       jobSeeker: jobSeekerId,
+      resume: jobSeeker.jobseeker.resume || "",
+      phone: jobSeeker.jobseeker.phone || "",
     });
 
     await newApplication.save();
-
-    const populated = await Application.findById(newApplication._id)
-      .populate({
-        path: "job",
-        select: "title company location createdBy",
-      })
-      .populate("jobSeeker", "name email");
 
     res.status(201).json({
       success: true,
       message: "Application submitted successfully",
       data: {
-        id: populated._id,
-        jobTitle: populated.job.title,
-        company: populated.job.company,
-        location: populated.job.location,
-        jobSeekerName: populated.jobSeeker.name,
-        appliedAt: populated.createdAt,
+        id: newApplication._id,
+        jobTitle: job.title,
+        company: job.company,
+        jobSeekerName: jobSeeker.name,
+        resume: newApplication.resume,
+        phone: newApplication.phone,
+        appliedAt: newApplication.createdAt,
       },
     });
   } catch (error) {

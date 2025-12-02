@@ -1,3 +1,4 @@
+
 const mongoose = require("mongoose");
 
 const applicationSchema = new mongoose.Schema(
@@ -12,9 +13,18 @@ const applicationSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    resume: {
-      type: String, // File path or URL (optional)
+
+    // ⭐ ADD THIS – store job seeker phone
+    phone: {
+      type: String,
+      default: "",
     },
+
+    // ⭐ Resume already exists — good
+    resume: {
+      type: String,
+    },
+
     status: {
       type: String,
       enum: ["Applied", "Under Review", "Shortlisted", "Rejected"],
@@ -25,4 +35,4 @@ const applicationSchema = new mongoose.Schema(
 );
 
 const Application = mongoose.model("Application", applicationSchema);
-module.exports=Application;
+module.exports = Application;

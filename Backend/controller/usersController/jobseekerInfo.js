@@ -1,4 +1,3 @@
-
 // controller/usersController/jobseekerInfo.js
 const User = require("../../models/User");
 
@@ -17,8 +16,9 @@ const updateJobseekerInfo = async (req, res) => {
       graduationYear,
       experience,
       skills,
-      resume,       // resume URL coming from frontend
-      profilePic,    // optional
+      resume,       // resume URL
+      profilePic,   // profile pic URL
+      phone         // ⭐ ADD THIS
     } = req.body;
 
     const user = await User.findById(req.user.id);
@@ -36,24 +36,27 @@ const updateJobseekerInfo = async (req, res) => {
     user.jobseeker.graduationYear = graduationYear;
     user.jobseeker.experience = experience;
 
-    // skills → array
+    // Skills → array
     user.jobseeker.skills = Array.isArray(skills)
       ? skills
       : skills.split(",").map((s) => s.trim());
 
-    // resume from upload controller (fileUrl)
+    // Resume
     if (resume) {
       user.jobseeker.resume = resume;
     }
 
-    // profile pic
+    // Profile Pic
     if (profilePic) {
       user.profilePic = profilePic;
     }
 
-    // ===========================
-    // ⭐ MARK PROFILE AS COMPLETED
-    // ===========================
+    // ⭐ PHONE NUMBER UPDATE (MAIN FIX)
+    if (phone) {
+      user.jobseeker.phone = phone;
+    }
+
+    // Mark profile completed
     user.profileCompleted = true;
 
     await user.save();
