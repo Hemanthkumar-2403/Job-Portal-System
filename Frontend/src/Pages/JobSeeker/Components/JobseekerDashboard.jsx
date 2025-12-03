@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -5,28 +6,45 @@ import { useSelector } from "react-redux";
 const JobSeekerDashboard = () => {
   const { user } = useSelector((state) => state.auth);
 
+  // SAFE name + initial
+  const userName = user?.name || user?.fullName || "User";
+  const initial = userName.charAt(0).toUpperCase();
+
+  // PROFILE PIC LOGIC (same as navbar)
+  const profilePic =
+    user?.profilePic ||               // main profile
+    user?.jobseeker?.profilePic ||    // fallback
+    "";
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
 
       {/* Profile Section */}
       <div className="flex items-center gap-4 mb-6">
-        <img
-          src={user?.profilePic}
-          alt="Profile"
-          className="w-20 h-20 rounded-full object-cover border shadow"
-        />
 
+        {/* Avatar */}
+        {profilePic ? (
+          <img
+            src={profilePic}
+            alt="Profile"
+            className="w-20 h-20 rounded-full object-cover border shadow"
+          />
+        ) : (
+          <div className="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center text-3xl font-semibold text-gray-700 border shadow">
+            {initial}
+          </div>
+        )}
+
+        {/* User Info */}
         <div>
           <h1 className="text-3xl font-bold">
-            Welcome, {user?.name || "Job Seeker"} 👋
+            Welcome, {userName} 👋
           </h1>
 
-          {/* ⭐ ADDED — PHONE NUMBER */}
           <p className="text-gray-600 mt-1">
             📞 <strong>{user?.jobseeker?.phone || "No phone added"}</strong>
           </p>
 
-          {/* ⭐ ADDED — RESUME DOWNLOAD */}
           <p className="text-gray-600 mt-1">
             📄 Resume:{" "}
             {user?.jobseeker?.resume ? (

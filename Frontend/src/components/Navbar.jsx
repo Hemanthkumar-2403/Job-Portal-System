@@ -15,12 +15,12 @@ export default function Navbar() {
   const initial = (userName && userName.charAt(0).toUpperCase()) || "U";
 
   // AVATAR fallback: top-level profilePic OR employer.jobseeker locations
-  const profilePic =
-  user?.employer?.profilePic ||   // ⭐ employer pic first
-  user?.jobseeker?.profilePic ||  // jobseeker
-  user?.profilePic ||             // fallback
-  user?.avatar || 
+const profilePic =
+  user?.profilePic ||               // ⭐ MAIN (for both employer & jobseeker)
+  user?.employer?.profilePic ||     // employer fallback
+  user?.jobseeker?.profilePic ||    // jobseeker (if stored separately)
   "";
+
 
   // Logout handler
   const handleLogout = async () => {
