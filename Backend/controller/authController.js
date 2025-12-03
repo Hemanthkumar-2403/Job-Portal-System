@@ -106,6 +106,8 @@ const signinUser = async (req, res) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: false,
+    sameSite: "lax",   
+  path: "/",
     });
 
     // 6️⃣ Fetch FULL user details (important)

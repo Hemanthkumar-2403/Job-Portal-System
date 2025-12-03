@@ -3,7 +3,6 @@ const User = require("../../models/User");
 
 const updateJobseekerInfo = async (req, res) => {
   try {
-    // Only jobseekers allowed
     if (req.user.role !== "jobseeker") {
       return res.status(403).json({
         success: false,
@@ -16,9 +15,9 @@ const updateJobseekerInfo = async (req, res) => {
       graduationYear,
       experience,
       skills,
-      resume,       // resume URL
-      profilePic,   // profile pic URL
-      phone         // ⭐ ADD THIS
+      resume,
+      profilePic,
+      phone
     } = req.body;
 
     const user = await User.findById(req.user.id);
@@ -29,42 +28,28 @@ const updateJobseekerInfo = async (req, res) => {
       });
     }
 
-    // ===========================
-    // ⭐ UPDATE FIELDS
-    // ===========================
     user.jobseeker.education = education;
     user.jobseeker.graduationYear = graduationYear;
     user.jobseeker.experience = experience;
-
-    // Skills → array
     user.jobseeker.skills = Array.isArray(skills)
       ? skills
       : skills.split(",").map((s) => s.trim());
 
-    // Resume
-    if (resume) {
-      user.jobseeker.resume = resume;
-    }
+    if (resume) user.jobseeker.resume = resume;
+    if (profilePic) user.profilePic = profilePic;
+    if (phone) user.jobseeker.phone = phone;
 
-    // Profile Pic
-    if (profilePic) {
-      user.profilePic = profilePic;
-    }
-
-    // ⭐ PHONE NUMBER UPDATE (MAIN FIX)
-    if (phone) {
-      user.jobseeker.phone = phone;
-    }
-
-    // Mark profile completed
     user.profileCompleted = true;
 
     await user.save();
 
+    // ⭐ IMPORTANT FIX
+    const updatedUser = await User.findById(user._id);
+
     return res.status(200).json({
       success: true,
       message: "Jobseeker profile updated successfully",
-      user,
+      user: updatedUser,  // Must be inside user:
     });
 
   } catch (err) {
