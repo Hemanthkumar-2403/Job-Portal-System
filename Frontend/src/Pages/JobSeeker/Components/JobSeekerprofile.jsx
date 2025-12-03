@@ -38,7 +38,7 @@ function JobseekerProfile() {
         graduationYear: user.jobseeker.graduationYear || "",
         experience: user.jobseeker.experience || "",
         skills: user.jobseeker.skills?.join(", ") || "",
-        profilePic: user.jobseeker.profilePic || "",
+        profilePic: user.profilePic || "",
         resume: user.jobseeker.resume || "",
         phone: user.jobseeker.phone || "",
       });
@@ -135,11 +135,13 @@ function JobseekerProfile() {
         profilePic: profilePicURL,
         resume: resumeURL,
         phone: formData.phone,
-        profileCompleted: true,
+         profileCompleted: true
+
+        
       };
 
       const response = await dispatch(updateJobseekerInfoApi(payload));
-      dispatch(updateUserInfo( response.payload.user ));
+      dispatch(updateUserInfo( response.payload));
 
       toast.success("Jobseeker profile updated!");
       navigate("/jobseeker/dashboard");

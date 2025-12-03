@@ -32,10 +32,13 @@ const App = () => {
    const dispatch = useDispatch();
 
   // ⭐ Auto-login on refresh
-  useEffect(() => {
+ useEffect(() => {
+  // Only call /auth/me if cookie exists
+  if (document.cookie.includes("token")) {
     dispatch(checkAuth());
-  }, [dispatch]);
-  
+  }
+}, [dispatch]);
+
   return (
     <Router>
       <Routes>

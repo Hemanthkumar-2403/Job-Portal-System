@@ -130,7 +130,7 @@ function EmployerProfile() {
       const response = await dispatch(updateEmployerInfoApi(payload));
 
       if (response.meta.requestStatus === "fulfilled") {
-        dispatch(updateUserInfo(response.payload.user));
+dispatch(updateUserInfo(response.payload));
 
         toast.success("Employer profile updated!");
         navigate("/employer-dashboard");
