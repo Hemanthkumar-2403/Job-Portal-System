@@ -56,13 +56,14 @@ const profilePic =
 
         {/* LEFT */}
         <div className="flex items-center gap-3">
-          <button
-            className="md:hidden p-2 rounded hover:bg-gray-100"
-            aria-label="menu"
-            onClick={() => {/* open mobile menu if you have one */}}
-          >
-            ☰
-          </button>
+         <button
+  className="md:hidden p-2 rounded hover:bg-gray-100"
+  aria-label="menu"
+  onClick={() => window.dispatchEvent(new CustomEvent("toggle-sidebar"))}
+>
+  ☰
+</button>
+
 
           <Link to="/" className="text-xl font-semibold text-pink-600">
             JobPortal

@@ -1,5 +1,5 @@
 import React from "react";
-import EmployerSidebar from "../../components/Sidebar";
+import EmployerSidebar from "../Employer/EmployerSidebar";
 import { Outlet } from "react-router-dom";
 
 export default function EmployerLayout() {
