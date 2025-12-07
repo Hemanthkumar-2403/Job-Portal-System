@@ -19,6 +19,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173", // local frontend
+      "https://hire-hub-jobs-app.netlify.app",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
