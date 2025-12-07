@@ -23,9 +23,9 @@ import FindJobs from './Pages/JobSeeker/Components/Findjobs';
 import EmployerLayout from './Pages/Employer/EmployerLayout';
 import EmployerProfile from "./Pages/Employer/EmployerProfile";
 import AppliedJobs from './Pages/JobSeeker/Components/AppliedJobs';
-import JobSeekerDashboard from './Pages/JobSeeker/Components/JobSeekerDashboard'
-import JobSeekerLayout from './Pages/JobSeeker/Components/JobSeekerLayout'
-import JobSeekerProfile from './Pages/JobSeeker/Components/JobSeekerProfile';
+import JobseekerDashboard from './Pages/JobSeeker/Components/JobseekerDashboard'
+import JobseekerLayout from './Pages/JobSeeker/Components/JobseekerLayout'
+import JobseekerProfile from './Pages/JobSeeker/Components/JobseekerProfile'
 const App = () => {
    const dispatch = useDispatch();
 
@@ -50,10 +50,10 @@ const App = () => {
 
       {/* 🔒 Protected Job Seeker Routes */}
      <Route element={<ProtectedRoute requiredRole="jobseeker" />}>
-      <Route element={<JobSeekerLayout />}>
+      <Route element={<JobseekerLayout />}>
 
     {/* Dashboard */}
-    <Route path="/jobseeker/dashboard" element={<JobSeekerDashboard />} />
+    <Route path="/jobseeker/dashboard" element={<JobseekerDashboard />} />
 
     {/* Find Jobs */}
     <Route path="/find-jobs" element={<FindJobs />} />
@@ -62,7 +62,7 @@ const App = () => {
     <Route path="/jobseeker/applied" element={<AppliedJobs />} />
 
     {/* Jobseeker Profile */}
-    <Route path="/jobseeker/profile" element={<JobSeekerProfile/>} />
+    <Route path="/jobseeker/profile" element={<JobseekerProfile/>} />
 
   </Route>
 </Route>
