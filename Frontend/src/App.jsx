@@ -23,7 +23,7 @@ import FindJobs from './Pages/JobSeeker/Components/Findjobs';
 import EmployerLayout from './Pages/Employer/EmployerLayout';
 import EmployerProfile from "./Pages/Employer/EmployerProfile";
 import AppliedJobs from './Pages/JobSeeker/Components/AppliedJobs';
-import JobSeekerDashboard from './Pages/JobSeeker/Components/JobseekerDashboard';
+import JobSeekerDashboard from './Pages/JobSeeker/Components/JobSeekerDashboard';
 import JobSeekerLayout from './Pages/JobSeeker/Components/JobSeekerLayout';
 import JobSeekerProfile from './Pages/JobSeeker/Components/JobSeekerProfile';
 const App = () => {

@@ -1,5 +1,5 @@
 import React from "react";
-import JobSeekerSidebar from "./JobseekerSidebar";
+import JobSeekerSidebar from "./JobSeekerSidebar";
 import { Outlet } from "react-router-dom";
 
 export default function JobSeekerLayout() {
