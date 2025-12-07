@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import JobSeekerSidebar from "./JobSeekerSidebar";
 
-export default function JobseekerLayout() {
+ function JobseekerLayout() {
   return (
     <div className="flex">
       <JobSeekerSidebar />
@@ -11,3 +11,5 @@ export default function JobseekerLayout() {
     </div>
   );
 }
+
+export default JobseekerLayout
