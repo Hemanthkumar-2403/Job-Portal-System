@@ -7,7 +7,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "https://job-portal-system-oscl.onrender.com/api",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5100/api",
   withCredentials: true, // 👈 VERY IMPORTANT (this sends cookies)
 });
 
