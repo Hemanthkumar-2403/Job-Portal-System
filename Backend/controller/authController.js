@@ -103,11 +103,11 @@ const signinUser = async (req, res) => {
     );
 
     // 5️⃣ Set HTTP-only cookie
-    res.cookie("token", token, {
+     res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
-    sameSite: "lax",   
-  path: "/",
+      secure: true,       // required for HTTPS
+      sameSite: "None",   // allow cross-site
+      path: "/",
     });
 
     // 6️⃣ Fetch FULL user details (important)
@@ -169,11 +169,12 @@ const forgotPassword = async (req, res) => {
 const Logout = async (req, res) => {
   try {
     res.clearCookie("token", {
-      httpOnly: true,
-      secure: false,     // localhost --> false
-      sameSite: "lax",   // MUST be 'lax' for non-HTTPS
-      path: "/",         // VERY IMPORTANT
-    });
+  httpOnly: true,
+  secure: true,
+  sameSite: "None",
+  path: "/",
+});
+
 
     return res.status(200).json({ message: "Logout successful" });
   } catch (err) {
