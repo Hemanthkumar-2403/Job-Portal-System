@@ -26,7 +26,6 @@ import AppliedJobs from './Pages/JobSeeker/Components/AppliedJobs';
 import JobSeekerDashboard from './Pages/JobSeeker/Components/JobseekerDashboard';
 import JobSeekerLayout from './Pages/JobSeeker/Components/JobSeekerLayout';
 import JobSeekerProfile from './Pages/JobSeeker/Components/JobSeekerProfile';
-
 const App = () => {
    const dispatch = useDispatch();
 
@@ -63,7 +62,7 @@ const App = () => {
     <Route path="/jobseeker/applied" element={<AppliedJobs />} />
 
     {/* Jobseeker Profile */}
-    <Route path="/jobseeker/profile" element={< JobSeekerProfile/>} />
+    <Route path="/jobseeker/profile" element={<JobSeekerProfile/>} />
 
   </Route>
 </Route>
