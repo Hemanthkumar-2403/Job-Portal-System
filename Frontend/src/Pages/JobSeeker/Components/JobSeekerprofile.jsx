@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  uploadJobseekerProfilePicApi,
-  uploadJobseekerResumeApi,
-  updateJobseekerInfoApi,
-} from "../../../redux/JobSeekerSlice";
-import { updateUserInfo } from "../../../redux/authSlice";
-import { validateJobseekerField } from "../../JobSeeker/Components/Validation";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import {
+    updateJobseekerInfoApi,
+    uploadJobseekerProfilePicApi,
+    uploadJobseekerResumeApi,
+} from "../../../redux/JobSeekerSlice";
+import { updateUserInfo } from "../../../redux/authSlice";
+import { validateJobseekerField } from "./Validation";
 
 function JobseekerProfile() {
   const dispatch = useDispatch();
