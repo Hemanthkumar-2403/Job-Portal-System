@@ -24,7 +24,7 @@ import EmployerLayout from './Pages/Employer/EmployerLayout';
 import EmployerProfile from "./Pages/Employer/EmployerProfile";
 import AppliedJobs from './Pages/JobSeeker/Components/AppliedJobs';
 import JobseekerDashboard from './Pages/JobSeeker/Components/JobseekerDashboard'
-import JobseekerLayout from './Pages/JobSeeker/Components/JobseekerLayout'
+import JobseekerLayout from './Pages/JobSeeker/Components/JobseekerLayout';
 import JobseekerProfile from './Pages/JobSeeker/Components/JobseekerProfile'
 const App = () => {
    const dispatch = useDispatch();
